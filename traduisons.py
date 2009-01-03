@@ -1,7 +1,7 @@
 #! /usr/bin/python
 #-*- coding: utf-8 -*-
 
-##Traduisons! 0.0.1
+##Traduisons! 0.1.0
 ##Uses Google Translate from the terminal
 ##Gui requires GTK2
 
@@ -9,7 +9,6 @@
 
 ##Help doesn't display in gui yet
 ##Check out scale widgets?
-
 
 import urllib2, string, htmlentitydefs, re, sys
 
@@ -36,31 +35,43 @@ except:
 
 
 start_text = ""
-fromLang = 'fr'
+fromLang = 'auto'
 toLang = 'en'
 dictLang = {'Detect Language' : 'auto',
             'Arabic' : 'ar',
             'Bulgarian' : 'bg',
-            'Chinese' : 'zh-CN',
+			'Catalan' : 'ca',
+            'Chinese (Simplified)' : 'zh-CN',
+			'Chinese (traditional)' : 'zh-TW',
             'Croation' : 'hr',
             'Czech' : 'cs',
             'Danish' : 'da',
             'Dutch' : 'nl',
             'English' : 'en',
+			'Filipino' : 'tl',
             'Finnish' : 'fi',
             'French' : 'fr',
             'German' : 'de',
             'Greek' : 'el',
+			'Hebrew' : 'iw',
             'Hindi' : 'hi',
+			'Indonesian' : 'id',
             'Italian' : 'it',
             'Japanese' : 'ja',
             'Korean' : 'ko',
+			'Latvian' : 'lv',
+			'Lithuanian' : 'lt',
             'Norwegian' : 'no',
             'Polish' : 'pl',
             'Portuguese' : 'pt',
+			'Romanian' : 'ro',
             'Russian' : 'ru',
+			'Serbian' : 'sr',
+			'Slovak' : 'sk',
             'Spanish' : 'es',
-            'Swedish' : 'sv'}
+            'Swedish' : 'sv',
+			'Ukrainian' : 'uk',
+			'Vietnamese' : 'vi'}
 
 
 
@@ -230,6 +241,8 @@ es|           Change starting Language to Spanish:
         self.result1.set_indent(-12)
         self.resultbuffer1 = self.result1.get_buffer()
         self.resultbuffer1.create_mark('end', self.resultbuffer1.get_end_iter(), False)
+		self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), 'Mouse over for helpful tooltips.')
+
         self.result1.show()
     ##  Scroll Bar
         self.resultscroll = gtk.ScrolledWindow()
@@ -258,7 +271,8 @@ es|           Change starting Language to Spanish:
             if self.resultbuffer1.get_text(self.resultbuffer1.get_start_iter(), self.resultbuffer1.get_end_iter()) != '': self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '\n')
             self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '%s: %s' % (self.fromLang, self.entry.get_text()))
             self.result1.scroll_mark_onscreen(self.resultbuffer1.get_mark('end'))
-            translation = translate(self.entry.get_text(), self.fromLang, self.toLang)
+			#~ Had to convert translation to utf-8 to get non-latin chars.
+            translation = translate(self.entry.get_text(), self.fromLang, self.toLang).encode("utf-8")
             print translation
             self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '\n   %s: %s' % (self.toLang, translation))
             self.result1.scroll_mark_onscreen(self.resultbuffer1.get_mark('end'))
@@ -276,7 +290,8 @@ if __name__ == '__main__':
                 while start_text == '':
                     start_text = raw_input(stringLang)
                 start_text, fromLang, toLang, SendFlag = changelang(start_text, fromLang, toLang)
-                if SendFlag: print translate(start_text, fromLang, toLang)
+                #~ Had to convert translation to utf-8 to get non-latin chars.
+                if SendFlag: print translate(start_text, fromLang, toLang).encode("utf-8")
 
     import pygtk
     pygtk.require('2.0')
