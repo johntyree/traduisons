@@ -225,6 +225,7 @@ es|           Change starting Language to Spanish:
         self.entry.select_region(0, len(self.entry.get_text()))
         self.hbox1.pack_start(self.entry, True, True, 1)
         self.tooltips.set_tip(self.entry, helptip)
+        self.entry.set_text("Mouse over for helpful tooltips")
         self.entry.show()
 ##  ----^---- Upper half of window ----^----
 
@@ -241,7 +242,6 @@ es|           Change starting Language to Spanish:
         self.result1.set_indent(-12)
         self.resultbuffer1 = self.result1.get_buffer()
         self.resultbuffer1.create_mark('end', self.resultbuffer1.get_end_iter(), False)
-		self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), 'Mouse over for helpful tooltips.')
 
         self.result1.show()
     ##  Scroll Bar
