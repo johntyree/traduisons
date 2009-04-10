@@ -40,38 +40,39 @@ toLang = 'en'
 dictLang = {'Detect Language' : 'auto',
             'Arabic' : 'ar',
             'Bulgarian' : 'bg',
-			'Catalan' : 'ca',
+            'Catalan' : 'ca',
+            'Chinese' : 'zh-CN',
             'Chinese (Simplified)' : 'zh-CN',
-			'Chinese (traditional)' : 'zh-TW',
+            'Chinese (traditional)' : 'zh-TW',
             'Croation' : 'hr',
             'Czech' : 'cs',
             'Danish' : 'da',
             'Dutch' : 'nl',
             'English' : 'en',
-			'Filipino' : 'tl',
+            'Filipino' : 'tl',
             'Finnish' : 'fi',
             'French' : 'fr',
             'German' : 'de',
             'Greek' : 'el',
-			'Hebrew' : 'iw',
+            'Hebrew' : 'iw',
             'Hindi' : 'hi',
-			'Indonesian' : 'id',
+            'Indonesian' : 'id',
             'Italian' : 'it',
             'Japanese' : 'ja',
             'Korean' : 'ko',
-			'Latvian' : 'lv',
-			'Lithuanian' : 'lt',
+            'Latvian' : 'lv',
+            'Lithuanian' : 'lt',
             'Norwegian' : 'no',
             'Polish' : 'pl',
             'Portuguese' : 'pt',
-			'Romanian' : 'ro',
+            'Romanian' : 'ro',
             'Russian' : 'ru',
-			'Serbian' : 'sr',
-			'Slovak' : 'sk',
+            'Serbian' : 'sr',
+            'Slovak' : 'sk',
             'Spanish' : 'es',
             'Swedish' : 'sv',
-			'Ukrainian' : 'uk',
-			'Vietnamese' : 'vi'}
+            'Ukrainian' : 'uk',
+            'Vietnamese' : 'vi'}
 
 
 
@@ -102,12 +103,13 @@ def changelang(start_text, fromLang, toLang):
 
 	#~ Use the '/' character to reverse translation direction. Then strip.
     elif start_text[0] == '/' or start_text[-1] == '/': 
-        toLang, fromLang = fromLang, toLang
+        if not fromLang == 'auto':
+            toLang, fromLang = fromLang, toLang
         try:        
             if start_text == '/': SendFlag, start_text = False, ""
             elif start_text[-1] == '/': start_text = start_text[:-1]
             elif start_text[0] == '/': start_text = start_text[1:]
-	    print SendFlag
+	    #~ print SendFlag
         except:
             pass
 
