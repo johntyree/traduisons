@@ -97,12 +97,13 @@ def unquotehtml(s):
 
 def changelang(start_text, fromLang, toLang):
     # Reference dictLang to change target languages.
-    #~ SendFlag gets changed to false if not actually translating.
+    # SendFlag gets changed to false if not actually translating.
     SendFlag = True
     if start_text in ('.exit', '.quit', '.quitter', 'exit()'): sys.exit()
 
-	#~ Use the '/' character to reverse translation direction. Then strip.
+	# Use the '/' character to reverse translation direction. Then strip.
     elif start_text[0] == '/' or start_text[-1] == '/': 
+        # 'auto' is not a valid toLang. Prevent swapping.
         if not fromLang == 'auto':
             toLang, fromLang = fromLang, toLang
         try:        
@@ -145,7 +146,7 @@ def changelang(start_text, fromLang, toLang):
             toLang = dictLang.get(string.capitalize(start_text[start_text.find('|') + 1:]))
 
         # Check 2-character code
-        elif start_text[start_text.find('|') + 1:] in dictLang.values():
+        elif start_text[start_text.find('|') + 1:] in dictLang.values() and start_text[start_text.find('|') + 1:] != 'auto':
             toLang = start_text[start_text.find('|') + 1:]
 
         start_text = ''
