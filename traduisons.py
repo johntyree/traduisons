@@ -1,7 +1,7 @@
 #! /usr/bin/python
 #-*- coding: utf-8 -*-
 
-##Traduisons! 0.1.1
+##Traduisons! 0.2.0
 ##Uses Google Translate from the terminal
 ##Gui requires GTK2
 
@@ -11,17 +11,6 @@
 ##Check out scale widgets?
 
 import urllib2, string, htmlentitydefs, re, sys
-
-try:
-    from BeautifulSoup import BeautifulSoup
-except:
-    print """
-        import module BeautifulSoup: FAIL
-        Traduisons! requires BeautifulSoup.
-        Please make sure it is correctly installed.
-        http://www.crummy.com/software/BeautifulSoup/
-        """
-    sys.exit()
 
 try:
     import gtk
@@ -157,16 +146,16 @@ def changelang(start_text, fromLang, toLang):
 
 
 def translate(start_text, fromLang, toLang):
-    try:
-    ##  Open the URL, parse it with BeautifulSoup, convert to UTF 8, and store string.
-        translated_text = unquotehtml(BeautifulSoup(urllib2.urlopen(urllib2.Request('http://www.google.com/translate_t?', 'text=%s&sl=%s&tl=%s' % (start_text, fromLang, toLang), {'User-Agent':'Mozilla/5.0'})).read()).find("div", id="result_box").contents[0])
-        
+    #~ try:
+    ##  Open the URL, parse it with regex, convert to UTF 8, and store string.
+        translated_text = unquotehtml(re.search(r"<div id=result_box dir=\"ltr\">(.*?)</div>",urllib2.urlopen(urllib2.Request('http://www.google.com/translate_t?', 'text=%s&sl=%s&tl=%s' % (start_text, fromLang, toLang), {'User-Agent':'Mozilla/5.0'})).read()).group(1))
+        print translated_text
     ##  Paste to clipboard
         clipboard.set_text(translated_text)
         clipboard.store()    
-    except:
-        translated_text = "Unable to translate text."
-    return translated_text
+    #~ except:
+        #~ translated_text = "Unable to translate text."
+        return translated_text
     
     
 class TranslateWindow:
