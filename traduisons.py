@@ -1,26 +1,38 @@
 #! /usr/bin/python
 #-*- coding: utf-8 -*-
 
-##Traduisons! 0.2.0
-##Uses Google Translate from the terminal
-##Gui requires GTK2
+## Traduisons! 0.2.1
+## Uses Google Translate from the terminal
+## Gui requires GTK2
 
-##go through and comment this
+## Arabic is borked.
 
-##Help doesn't display in gui yet
-##Check out scale widgets?
+## go through and comment this
+
+## Help doesn't display in gui yet
+## Check out scale widgets?
 
 import urllib2, string, htmlentitydefs, re, sys
 
+## If gtk or pygtk fails to import, append --no-gui flag and run at cli.
 try:
+    guiflag = True
     import gtk
     clipboard = gtk.clipboard_get()
-except:
+except ImportError:
+    print """  Import module GTK: FAIL"""
+    guiflag = False
+try:
+    import pygtk
+    pygtk.require('2.0')
+except ImportError:
+    print """  Import module pyGTK: FAIL"""
+if not guiflag:
     sys.argv.append('--no-gui')
-    print """
-        Module gtk: FAIL
-        Running with --no-gui flag.
-        """
+    print """  
+    Install modules or try:
+        python "%s" --no-gui
+            """ % (sys.argv[0])
 
 
 start_text = ""
@@ -66,7 +78,7 @@ dictLang = {'Detect Language' : 'auto',
 
 
 def convertentity(m):
-    # Convert a HTML entity into normal string (ISO-8859-1)
+    ## Convert a HTML entity into normal string (ISO-8859-1)
     if m.group(1)=='#':
         try:
             return chr(int(m.group(2)))
@@ -79,20 +91,20 @@ def convertentity(m):
 
 
 def unquotehtml(s):
-    # Convert a HTML quoted string into normal string (ISO-8859-1).
-    # Works with &#XX; and with &nbsp; &gt; etc."""
+    ## Convert a HTML quoted string into normal string (ISO-8859-1).
+    ## Works with &#XX; and with &nbsp; &gt; etc."""
     return re.sub(r'&(#?)(.+?);',convertentity,s)
 
 
 def changelang(start_text, fromLang, toLang):
-    # Reference dictLang to change target languages.
-    # SendFlag gets changed to false if not actually translating.
+    ## Reference dictLang to change target languages.
+    ## SendFlag gets changed to false if not actually translating.
     SendFlag = True
     if start_text in ('.exit', '.quit', '.quitter', 'exit()'): sys.exit()
 
-	# Use the '/' character to reverse translation direction. Then strip.
+	## Use the '/' character to reverse translation direction. Then strip.
     elif start_text[0] == '/' or start_text[-1] == '/': 
-        # 'auto' is not a valid toLang. Prevent swapping.
+        ## 'auto' is not a valid toLang. Prevent swapping.
         if not fromLang == 'auto':
             toLang, fromLang = fromLang, toLang
         try:        
@@ -120,42 +132,41 @@ def changelang(start_text, fromLang, toLang):
         start_text = ''
         SendFlag = False
 
-    #~ Use '|' character to change translation language(s).
+    ## Use '|' character to change translation language(s).
     elif start_text.find('|') + 1:
-        # Check language name
+        ## Check language name
         if dictLang.get(string.capitalize(start_text[0:start_text.find('|')])):
             fromLang = dictLang.get(string.capitalize(start_text[0:start_text.find('|')]))
 
-        # Check 2-character code
+        ## Check 2-character code
         elif start_text[0:start_text.find('|')] in dictLang.values():
             fromLang = start_text[0:start_text.find('|')]
 
-        # If start_text is in dictLang, set new toLang and restart loop.
+        ## If start_text is in dictLang, set new toLang and restart loop.
         if dictLang.get(string.capitalize(start_text[start_text.find('|') + 1:])):
             toLang = dictLang.get(string.capitalize(start_text[start_text.find('|') + 1:]))
 
-        # Check 2-character code
+        ## Check 2-character code
         elif start_text[start_text.find('|') + 1:] in dictLang.values() and start_text[start_text.find('|') + 1:] != 'auto':
             toLang = start_text[start_text.find('|') + 1:]
 
         start_text = ''
         SendFlag = False
 
-##HERHERHER    start_text_old = start_text    
     return (start_text, fromLang, toLang, SendFlag)
 
 
 def translate(start_text, fromLang, toLang):
-    #~ try:
+    try:
     ##  Open the URL, parse it with regex, convert to UTF 8, and store string.
         translated_text = unquotehtml(re.search(r"<div id=result_box dir=\"ltr\">(.*?)</div>",urllib2.urlopen(urllib2.Request('http://www.google.com/translate_t?', 'text=%s&sl=%s&tl=%s' % (start_text, fromLang, toLang), {'User-Agent':'Mozilla/5.0'})).read()).group(1))
-        print translated_text
     ##  Paste to clipboard
         clipboard.set_text(translated_text)
-        clipboard.store()    
-    #~ except:
-        #~ translated_text = "Unable to translate text."
-        return translated_text
+        clipboard.store() 
+    ##  If translated_text is empty (no translation found) handle exception.
+    except AttributeError:
+        translated_text = "Unable to translate text."
+    return translated_text
     
     
 class TranslateWindow:
@@ -234,8 +245,8 @@ es|           Change starting Language to Spanish:
         self.result1.set_indent(-12)
         self.resultbuffer1 = self.result1.get_buffer()
         self.resultbuffer1.create_mark('end', self.resultbuffer1.get_end_iter(), False)
-
         self.result1.show()
+    
     ##  Scroll Bar
         self.resultscroll = gtk.ScrolledWindow()
         self.resultscroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
@@ -282,11 +293,8 @@ if __name__ == '__main__':
                 while start_text == '':
                     start_text = raw_input(stringLang)
                 start_text, fromLang, toLang, SendFlag = changelang(start_text, fromLang, toLang)
-                #~ Had to convert translation to utf-8 to get non-latin chars.
+                ## Had to convert translation to utf-8 to get non-latin chars.
                 if SendFlag: print translate(start_text, fromLang, toLang).encode("utf-8")
-
-    import pygtk
-    pygtk.require('2.0')
 
     def main():
         gtk.main()
@@ -294,4 +302,4 @@ if __name__ == '__main__':
 
     TranslateWindow(fromLang, toLang, dictLang)
     main()
-    
+
