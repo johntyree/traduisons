@@ -1,43 +1,54 @@
-#! /usr/bin/python
-#-*- coding: utf-8 -*-
-
-## Traduisons! 0.2.1
-## Uses Google Translate from the terminal
-## Gui requires GTK2
-
-## Arabic is borked.
-
-## go through and comment this
-
-## Help doesn't display in gui yet
-## Check out scale widgets?
+#! /usr/bin/env python
+#
+#       Traduisons! 0.2.2
+#       
+##      Uses Google Translate from the terminal
+##      Arabic is borked.
+##      Check out scale widgets?
+#
+#       Copyright 2009 John E Tyree <johntyree@gmail.com>
+#       
+#       This program is free software; you can redistribute it and/or modify
+#       it under the terms of the GNU General Public License as published by
+#       the Free Software Foundation; either version 3 of the License, or
+#       (at your option) any later version.
+#       
+#       This program is distributed in the hope that it will be useful,
+#       but WITHOUT ANY WARRANTY; without even the implied warranty of
+#       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#       GNU General Public License for more details.
+#       
+#       You should have received a copy of the GNU General Public License
+#       along with this program; if not, write to the Free Software
+#       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#       MA 02110-1301, USA.
 
 import urllib2, string, htmlentitydefs, re, sys
 
-## If gtk or pygtk fails to import, append --no-gui flag and run at cli.
-try:
-    guiflag = True
-    import gtk
-    clipboard = gtk.clipboard_get()
-except ImportError:
-    print """  Import module GTK: FAIL"""
-    guiflag = False
-try:
-    import pygtk
-    pygtk.require('2.0')
-except ImportError:
-    print """  Import module pyGTK: FAIL"""
-if not guiflag:
-    sys.argv.append('--no-gui')
-    print """  
-    Install modules or try:
-        python "%s" --no-gui
-            """ % (sys.argv[0])
+msg_VERSION = "0.2.2"
+msg_BUGS = "Bugs, suggestions at <http://traduisons.googlecode.com>"
+msg_USAGE = """Usage: %s [OPTION]...
+Translate a string between languages using Google Translate.
+
+OPTIONS
+  -h, --help            Show help and basic usage.
+  -n, --no-gui          Run at command line only.
+  -v, --version         Print version information and exit.
+""" % sys.argv[0]
+
+msg_HELP = """Type the name or code for the desired language.
+Format:  <Input Language> | <Target Language>
+fi|French    Finnish to French:
+auto|en      Auto detect to English:
+|ar          Change target Language to Arabic:
+es|          Change starting Language to Spanish:
+
+Please visit <http://code.google.com/p/traduisons/wiki> for help."""
 
 
 start_text = ""
-fromLang = 'auto'
-toLang = 'en'
+fromLang = "auto"
+toLang = "en"
 dictLang = {'Detect Language' : 'auto',
             'Arabic' : 'ar',
             'Bulgarian' : 'bg',
@@ -76,7 +87,6 @@ dictLang = {'Detect Language' : 'auto',
             'Ukrainian' : 'uk',
             'Vietnamese' : 'vi'}
 
-
 def convertentity(m):
     ## Convert a HTML entity into normal string (ISO-8859-1)
     if m.group(1)=='#':
@@ -96,9 +106,9 @@ def unquotehtml(s):
     return re.sub(r'&(#?)(.+?);',convertentity,s)
 
 
-def changelang(start_text, fromLang, toLang):
+def changelang(ViewObj, start_text, fromLang, toLang):
     ## Reference dictLang to change target languages.
-    ## SendFlag gets changed to false if not actually translating.
+    ## SendFlag gets changed to false if not sending an http request.
     SendFlag = True
     if start_text in ('.exit', '.quit', '.quitter', 'exit()'): sys.exit()
 
@@ -111,23 +121,18 @@ def changelang(start_text, fromLang, toLang):
             if start_text == '/': SendFlag, start_text = False, ""
             elif start_text[-1] == '/': start_text = start_text[:-1]
             elif start_text[0] == '/': start_text = start_text[1:]
-	    #~ print SendFlag
         except:
             pass
 
     elif start_text in ('?', 'help', '-h', '-help', '--help'):
-
+        print '\n'
         for item in sorted(dictLang.keys()):
             print item + ' : ' + dictLang.get(item)
-
-        print """\n
-            Type the name or code for the desired language.
-            Format:  <From This Language> | <To This Language>
-            ex: Finnish to French:                   fi|french
-            Auto detect to English:              auto|en
-            Change target Language to Arabic:    |ar
-            Change starting Language to Spanish: es|
-            """
+        print '\n', msg_HELP, '\n'
+        
+        if guiflag:
+            ViewObj.resultbuffer1.insert(ViewObj.resultbuffer1.get_end_iter(), '\nPlease visit:\nhttp://code.google.com/p/traduisons/wiki')
+            ViewObj.result1.scroll_mark_onscreen(ViewObj.resultbuffer1.get_mark('end'))
     
         start_text = ''
         SendFlag = False
@@ -157,15 +162,22 @@ def changelang(start_text, fromLang, toLang):
 
 
 def translate(start_text, fromLang, toLang):
+    global unicodeflag ## Declare as global to avoid UnboundLocalError
     try:
-    ##  Open the URL, parse it with regex, convert to UTF 8, and store string.
+    ##  Open the URL, parse it with regex, convert to UTF-8 if possible, and store string.
         translated_text = unquotehtml(re.search(r"<div id=result_box dir=\"ltr\">(.*?)</div>",urllib2.urlopen(urllib2.Request('http://www.google.com/translate_t?', 'text=%s&sl=%s&tl=%s' % (start_text, fromLang, toLang), {'User-Agent':'Mozilla/5.0'})).read()).group(1))
     ##  Paste to clipboard
-        clipboard.set_text(translated_text)
-        clipboard.store() 
+        if guiflag:
+            clipboard.set_text(translated_text)
+            clipboard.store() 
+        if unicodeflag: translated_text = translated_text.encode("utf-8")
     ##  If translated_text is empty (no translation found) handle exception.
-    except AttributeError:
+    except (AttributeError, urllib2.HTTPError):
         translated_text = "Unable to translate text."
+    
+    except UnicodeDecodeError:
+        print "Error: UTF-8 decoding error. Unable to print some special characters."
+        unicodeflag = False
     return translated_text
     
     
@@ -177,18 +189,9 @@ class TranslateWindow:
 
 
 ##      making help tip string
-        helptip  = ''
+        msg_LANGTIP  = "Language : symbol\n\n"
         for item in sorted(dictLang.keys()):
-            helptip += item + ' : ' + dictLang.get(item) + '\n'
-
-        helptip += """
-Type the name or code for the desired language.
-Format:  <From This Language> | <To This Language>
-fi|French    Finnish to French:
-auto|en      Auto detect to English:
-|ar           Change target Language to Arabic:
-es|           Change starting Language to Spanish:
-"""
+            msg_LANGTIP += item + ' : ' + dictLang.get(item) + '\n'
 
 ##      Generate tooltips
         self.tooltips = gtk.Tooltips()
@@ -217,17 +220,17 @@ es|           Change starting Language to Spanish:
         self.langbox = gtk.Label()
         self.langbox.set_text(self.fromLang + ' | ' + self.toLang + ':  ')
         self.hbox1.pack_start(self.langbox, False, False, 1)
-        self.tooltips.set_tip(self.langbox, "Input language | Target language:")
+        self.tooltips.set_tip(self.langbox, msg_LANGTIP)
         self.langbox.show()
  
-##      Text box
+##      Entry box
         self.entry = gtk.Entry()
         self.entry.set_max_length(0)
         self.entry.connect('activate', self.enter_callback)
 
         self.entry.select_region(0, len(self.entry.get_text()))
         self.hbox1.pack_start(self.entry, True, True, 1)
-        self.tooltips.set_tip(self.entry, helptip)
+        self.tooltips.set_tip(self.entry, msg_HELP)
         self.entry.set_text("Mouse over for helpful tooltips")
         self.entry.show()
 ##  ----^---- Upper half of window ----^----
@@ -266,7 +269,7 @@ es|           Change starting Language to Spanish:
     def enter_callback(self, widget, data = None):
 ##  Sends EVERYTHING to changelang which then handles it
 ##  Ideally, ? should print list of languages, / should switch to and from
-        entry_set_text, self.fromLang, self.toLang, SendFlag = changelang(self.entry.get_text(), self.fromLang, self.toLang)
+        entry_set_text, self.fromLang, self.toLang, SendFlag = changelang(self, self.entry.get_text(), self.fromLang, self.toLang)
         self.langbox.set_text(self.fromLang + ' | ' + self.toLang + ':  ')            
         self.entry.set_text(entry_set_text)
         self.entry.select_region(0, len(self.entry.get_text()))
@@ -274,32 +277,64 @@ es|           Change starting Language to Spanish:
             if self.resultbuffer1.get_text(self.resultbuffer1.get_start_iter(), self.resultbuffer1.get_end_iter()) != '': self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '\n')
             self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '%s: %s' % (self.fromLang, self.entry.get_text()))
             self.result1.scroll_mark_onscreen(self.resultbuffer1.get_mark('end'))
-			#~ Had to convert translation to utf-8 to get non-latin chars.
-            translation = translate(self.entry.get_text(), self.fromLang, self.toLang).encode("utf-8")
-            print translation
+            translation = translate(self.entry.get_text(), self.fromLang, self.toLang)
+            print "%s: %s\n  %s: %s" % (self.fromLang, self.entry.get_text(), self.toLang, translation)
             self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '\n   %s: %s' % (self.toLang, translation))
             self.result1.scroll_mark_onscreen(self.resultbuffer1.get_mark('end'))
 
 ## ------*------ End CLASS ------*------
 
+#~ def main():
+    
 
-
-if __name__ == '__main__':
-    for arg in sys.argv:
-        if arg in ('--no-gui', '-n'):
-            while True:
-                stringLang = fromLang + "|" + toLang + ": "
-                start_text = ''
-                while start_text == '':
-                    start_text = raw_input(stringLang)
-                start_text, fromLang, toLang, SendFlag = changelang(start_text, fromLang, toLang)
-                ## Had to convert translation to utf-8 to get non-latin chars.
-                if SendFlag: print translate(start_text, fromLang, toLang).encode("utf-8")
-
-    def main():
+if __name__ == '__main__': 
+    guiflag = True
+    unicodeflag = True
+    for arg in sys.argv[1:]:
+        if arg in ('--help', '-h'):
+            print msg_USAGE, "\n", msg_HELP
+            sys.exit()
+        elif arg in ('--no-gui', '-n'):
+            guiflag = False
+        elif arg in ("--version", "-v"):
+            print """Traduisons! %s\n
+Copyright (C) 2009 John E Tyree <johntyree@gmail.com>
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+""" % msg_VERSION
+            sys.exit()
+        else:
+            print msg_USAGE, "\n", msg_BUGS
+            sys.exit()
+    
+    ## If gtk or pygtk fails to import, warn user and run at cli.
+    if guiflag:
+        try:
+            import gtk
+            clipboard = gtk.clipboard_get()
+        except ImportError:
+            print """  Import module GTK: FAIL"""
+            guiflag = False
+        try:
+            import pygtk
+            pygtk.require('2.0')
+        except ImportError:
+            guiflag = False
+            print """  Import module pyGTK: FAIL"""
+        if not guiflag:
+            print """  
+            Install modules or try:
+                python "%s" --no-gui
+                    """ % (sys.argv[0])
+    if guiflag:
+        TranslateWindow(fromLang, toLang, dictLang)
         gtk.main()
-        return 0
-
-    TranslateWindow(fromLang, toLang, dictLang)
-    main()
-
+    else:
+        while True:
+            stringLang = fromLang + "|" + toLang + ": "
+            start_text = ''
+            while start_text == '':
+                start_text = raw_input(stringLang)
+            start_text, fromLang, toLang, SendFlag = changelang(None, start_text, fromLang, toLang)
+            if SendFlag: print translate(start_text, fromLang, toLang)
