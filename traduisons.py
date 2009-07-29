@@ -5,6 +5,7 @@
 ##      Uses Google Translate from the terminal
 ##      Arabic is borked.
 ##      Check out scale widgets?
+##      Some issue with 'auto'. Often unable to translate. Works with proper language selected.
 #
 #       Copyright 2009 John E Tyree <johntyree@gmail.com>
 #       
@@ -189,9 +190,9 @@ class TranslateWindow:
 
 
 ##      making help tip string
-        msg_LANGTIP  = "Language : symbol\n\n"
+        msg_LANGTIP  = "Language : symbol\n"
         for item in sorted(dictLang.keys()):
-            msg_LANGTIP += item + ' : ' + dictLang.get(item) + '\n'
+            msg_LANGTIP += '\n' + item + ' : ' + dictLang.get(item)
 
 ##      Generate tooltips
         self.tooltips = gtk.Tooltips()
@@ -284,12 +285,10 @@ class TranslateWindow:
 
 ## ------*------ End CLASS ------*------
 
-#~ def main():
-    
-
-if __name__ == '__main__': 
-    guiflag = True
-    unicodeflag = True
+def main():
+    global guiflag; guiflag = True
+    global unicodeflag; unicodeflag = True
+    global fromLang, toLang
     for arg in sys.argv[1:]:
         if arg in ('--help', '-h'):
             print msg_USAGE, "\n", msg_HELP
@@ -311,8 +310,8 @@ There is NO WARRANTY, to the extent permitted by law.
     ## If gtk or pygtk fails to import, warn user and run at cli.
     if guiflag:
         try:
-            import gtk
-            clipboard = gtk.clipboard_get()
+            import gtk; global gtk
+            global clipboard; clipboard = gtk.clipboard_get()
         except ImportError:
             print """  Import module GTK: FAIL"""
             guiflag = False
@@ -327,6 +326,8 @@ There is NO WARRANTY, to the extent permitted by law.
             Install modules or try:
                 python "%s" --no-gui
                     """ % (sys.argv[0])
+    
+    ## Start traduisons!
     if guiflag:
         TranslateWindow(fromLang, toLang, dictLang)
         gtk.main()
@@ -338,3 +339,7 @@ There is NO WARRANTY, to the extent permitted by law.
                 start_text = raw_input(stringLang)
             start_text, fromLang, toLang, SendFlag = changelang(None, start_text, fromLang, toLang)
             if SendFlag: print translate(start_text, fromLang, toLang)
+
+
+if __name__ == '__main__': main()
+    
