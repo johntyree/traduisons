@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-    Traduisons! 0.2.2
+    Traduisons! 0.2.3
 
     Uses Google Translate from the terminal
     Arabic is borked.
@@ -27,7 +27,7 @@
     MA 02110-1301, USA.
 """
 
-import urllib2, string, htmlentitydefs, re, sys
+import urllib2, string, htmlentitydefs, re, sys, gtk, pygtk
 
 msg_VERSION = "0.2.3"
 msg_BUGS = "Bugs, suggestions at <http://traduisons.googlecode.com>"
@@ -195,9 +195,8 @@ class TranslateWindow:
     """Gui frontend to translate function."""
 
     def __init__(self, fromLang, toLang, dictLang):
-        ## localize variables
+		## localize variables
         self.fromLang, self.toLang, self.dictLang = fromLang, toLang, dictLang
-
 
         ## making help tip string
         msg_LANGTIP  = "Language : symbol\n"
@@ -211,6 +210,12 @@ class TranslateWindow:
         self.inputwindow = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.inputwindow.set_size_request(250, 89)
         self.inputwindow.set_title("Traduisons!")
+        try:
+            self.inputwindow.set_icon_from_file("traduisons.png")
+        except Exception, e:
+            pass
+            #print e.message
+            #sys.exit(1)
         self.inputwindow.connect("delete_event", lambda w, e: gtk.main_quit())
 
         self.AccelGroup = gtk.AccelGroup()
