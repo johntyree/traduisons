@@ -27,7 +27,7 @@
     MA 02110-1301, USA.
 """
 
-import urllib2, string, htmlentitydefs, re, sys, gtk, pygtk
+import urllib2, string, htmlentitydefs, re, sys, os, gtk, pygtk
 
 msg_VERSION = "0.2.3"
 msg_BUGS = "Bugs, suggestions at <http://traduisons.googlecode.com>"
@@ -49,7 +49,7 @@ es|          Change starting Language to Spanish:
 
 Please visit <http://code.google.com/p/traduisons/wiki> for help."""
 
-
+appPath = os.path.abspath(os.path.dirname(sys.argv[0]))
 start_text = ""
 fromLang = "auto"
 toLang = "en"
@@ -211,7 +211,7 @@ class TranslateWindow:
         self.inputwindow.set_size_request(250, 89)
         self.inputwindow.set_title("Traduisons!")
         try:
-            self.inputwindow.set_icon_from_file("traduisons.png")
+            self.inputwindow.set_icon_from_file(os.path.join(appPath, "traduisons.png"))
         except Exception, e:
             pass
             #print e.message
