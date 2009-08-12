@@ -49,7 +49,7 @@ es|          Change starting Language to Spanish:
 
 Please visit <http://code.google.com/p/traduisons/wiki> for help."""
 
-appPath = os.path.abspath(os.path.dirname(sys.argv[0]))
+appPath = os.path.abspath(os.path.dirname(os.path.realpath(sys.argv[0])))
 start_text = ""
 fromLang = "auto"
 toLang = "en"

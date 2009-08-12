@@ -19,7 +19,7 @@ core.setup(
     version = "0.2.3",
     console = [
         {"script": "traduisons.py",
-        "icon_resources": [(1, "traduisons.png")]
+        "icon_resources": [(1, "traduisons.ico")]
         }
     ],
 #    options=opts,
