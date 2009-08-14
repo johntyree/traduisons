@@ -111,6 +111,10 @@ def unquotehtml(s):
 
     return re.sub(r'&(#?)(.+?);',convertentity,s)
 
+def clearBuffer(ViewObj):
+    if ViewObj:
+        ViewObj.resultbuffer1.set_text('')
+    return
 
 def changelang(start_text, fromLang, toLang, ViewObj = None):
     """Change target languages according to dictLang."""
@@ -118,6 +122,9 @@ def changelang(start_text, fromLang, toLang, ViewObj = None):
     ## SendFlag gets changed to false if not sending an http request.
     SendFlag = True
     if start_text in ('.exit', '.quit', '.quitter', 'exit()'): sys.exit()
+    elif start_text in ('.clear', 'clear()'):
+        SendFlag = False
+        clearBuffer(ViewObj)
 
 	## Use the '/' character to reverse translation direction. Then strip.
     elif start_text[0] == '/' or start_text[-1] == '/':
@@ -218,8 +225,10 @@ class TranslateWindow:
             #sys.exit(1)
         self.inputwindow.connect("delete_event", lambda w, e: gtk.main_quit())
 
+        ## Keyboard Accelerators
         self.AccelGroup = gtk.AccelGroup()
         self.AccelGroup.connect_group(ord('Q'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z:gtk.main_quit())
+        self.AccelGroup.connect_group(ord('C'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: clearBuffer(self))
         self.inputwindow.add_accel_group(self.AccelGroup)
         ##self.inputwindow.add_accelerator("activate", self.AccelGroup, ord('Q'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
 
