@@ -1,9 +1,10 @@
 #! /usr/bin/env python
 """
-    Traduisons! 0.2.3
+    Traduisons!
+    http://traduisons.googlecode.com
 
     Uses Google Translate from the terminal
-    Arabic is borked.
+    Arabic and Persian are borked.
     Check out scale widgets?
     Some issue with 'auto'. Often unable to translate.
     Works with proper language selected.
@@ -29,8 +30,8 @@
 
 import urllib2, string, htmlentitydefs, re, sys, os, gtk, pygtk
 
-msg_VERSION = "0.2.3"
-msg_BUGS = "Bugs, suggestions at <http://traduisons.googlecode.com>"
+msg_VERSION = "0.2.4"
+msg_BUGS = "Bugs, suggestions at <http://code.google.com/p/traduisons/issues/list>"
 msg_USAGE = """Usage: %s [OPTION]...
 Translate a string between languages using Google Translate.
 
@@ -54,6 +55,7 @@ start_text = ""
 fromLang = "auto"
 toLang = "en"
 dictLang = {'Detect Language' : 'auto',
+            'Albanian' : 'sq',
             'Arabic' : 'ar',
             'Bulgarian' : 'bg',
             'Catalan' : 'ca',
@@ -65,20 +67,25 @@ dictLang = {'Detect Language' : 'auto',
             'Danish' : 'da',
             'Dutch' : 'nl',
             'English' : 'en',
+            'Estonian' : 'et',
             'Filipino' : 'tl',
             'Finnish' : 'fi',
             'French' : 'fr',
+            'Galician' : 'gl',
             'German' : 'de',
             'Greek' : 'el',
             'Hebrew' : 'iw',
             'Hindi' : 'hi',
+            'Hungarian' : 'hu',
             'Indonesian' : 'id',
             'Italian' : 'it',
             'Japanese' : 'ja',
             'Korean' : 'ko',
             'Latvian' : 'lv',
             'Lithuanian' : 'lt',
+            'Maltese' : 'mt',
             'Norwegian' : 'no',
+            'Persian' : 'fa',
             'Polish' : 'pl',
             'Portuguese' : 'pt',
             'Romanian' : 'ro',
@@ -88,8 +95,11 @@ dictLang = {'Detect Language' : 'auto',
             'Slovenian' : 'sl',
             'Spanish' : 'es',
             'Swedish' : 'sv',
+            'Thai' : 'th',
+            'Turkish' : 'tr',
             'Ukrainian' : 'uk',
-            'Vietnamese' : 'vi'}
+            'Vietnamese' : 'vi'
+            }
 
 def convertentity(m):
     """Convert a HTML entity into normal string (ISO-8859-1)"""
@@ -227,7 +237,7 @@ class TranslateWindow:
 
         ## Keyboard Accelerators
         self.AccelGroup = gtk.AccelGroup()
-        self.AccelGroup.connect_group(ord('Q'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z:gtk.main_quit())
+        self.AccelGroup.connect_group(ord('Q'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: gtk.main_quit())
         self.AccelGroup.connect_group(ord('C'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: clearBuffer(self))
         self.inputwindow.add_accel_group(self.AccelGroup)
         ##self.inputwindow.add_accelerator("activate", self.AccelGroup, ord('Q'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
@@ -321,7 +331,9 @@ def main():
         elif arg in ('--no-gui', '-n'):
             guiflag = False
         elif arg in ("--version", "-v"):
-            print """Traduisons! %s\n
+            print """Traduisons! %s
+http://traduisons.googlecode.com
+
 Copyright (C) 2009 John E Tyree <johntyree@gmail.com>
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 This is free software: you are free to change and redistribute it.
