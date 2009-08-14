@@ -238,7 +238,7 @@ class TranslateWindow:
         ## Keyboard Accelerators
         self.AccelGroup = gtk.AccelGroup()
         self.AccelGroup.connect_group(ord('Q'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: gtk.main_quit())
-        self.AccelGroup.connect_group(ord('C'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: clearBuffer(self))
+        self.AccelGroup.connect_group(ord('N'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: clearBuffer(self))
         self.inputwindow.add_accel_group(self.AccelGroup)
         ##self.inputwindow.add_accelerator("activate", self.AccelGroup, ord('Q'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
 
