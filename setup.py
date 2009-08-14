@@ -19,11 +19,11 @@ core.setup(
     version = "0.2.3",
     windows = [
         {"script": "traduisons.py",
-        "icon_resources": [(1, "traduisons.ico")]
+        "icon_resources": [(1, "traduisons_icon.png")]
         }
     ],
 #    options=opts,
-    data_files=[("traduisons.png")],
+    data_files=[("traduisons_icon.png")],
     cmdclass={
         'py2exe': Py2exeCommand,
         },
