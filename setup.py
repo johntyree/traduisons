@@ -17,7 +17,7 @@ core.setup(
     name = "Traduisons!",
     description = "A front-end to Google Translate.",
     version = "0.2.3",
-    console = [
+    windows = [
         {"script": "traduisons.py",
         "icon_resources": [(1, "traduisons.ico")]
         }
