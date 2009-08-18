@@ -28,7 +28,7 @@
     MA 02110-1301, USA.
 """
 
-import urllib2, string, htmlentitydefs, re, sys, os, gtk, pygtk
+import urllib2, string, htmlentitydefs, re, sys, os, pygtk, pango
 
 msg_VERSION = "0.2.4"
 msg_BUGS = "Bugs, suggestions at <http://code.google.com/p/traduisons/issues/list>"
@@ -253,7 +253,7 @@ class TranslateWindow:
 
         ## language label
         self.langbox = gtk.Label()
-        self.langbox.set_text(self.fromLang + ' | ' + self.toLang + ':  ')
+        self.langbox.set_markup('' + self.fromLang + ' | ' + self.toLang + ':  ')
         self.hbox1.pack_start(self.langbox, False, False, 1)
         self.tooltips.set_tip(self.langbox, msg_LANGTIP)
         self.langbox.show()
@@ -282,6 +282,8 @@ class TranslateWindow:
         self.result1.set_wrap_mode(gtk.WRAP_WORD)
         self.result1.set_indent(-12)
         self.resultbuffer1 = self.result1.get_buffer()
+        self.resultbuffer1.create_tag('fromLang', foreground = "dark red")
+        self.resultbuffer1.create_tag('toLang',foreground = "dark blue")
         self.resultbuffer1.create_mark('end', self.resultbuffer1.get_end_iter(), False)
         self.result1.show()
 
@@ -304,17 +306,27 @@ class TranslateWindow:
         ##  Sends EVERYTHING to changelang which then handles it
         ##  Ideally, ? should print list of languages, / should switch to and from
         entry_set_text, self.fromLang, self.toLang, SendFlag = changelang(self.entry.get_text(), self.fromLang, self.toLang, self)
-        self.langbox.set_text(self.fromLang + ' | ' + self.toLang + ':  ')
+        self.langbox.set_markup('' + self.fromLang + ' | ' + self.toLang + ':  ')
         self.entry.set_text(entry_set_text)
         self.entry.select_region(0, len(self.entry.get_text()))
         if SendFlag:
             if self.resultbuffer1.get_text(self.resultbuffer1.get_start_iter(), self.resultbuffer1.get_end_iter()) != '': self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '\n')
-            self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '%s: %s' % (self.fromLang, self.entry.get_text()))
+            # Setting marks to apply fromLang and toLang tags
+            self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '%s:' % (self.fromLang))
+            front = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
+            front.backward_word_start()
+            back = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
+            self.resultbuffer1.apply_tag_by_name('fromLang', front, back)
             self.result1.scroll_mark_onscreen(self.resultbuffer1.get_mark('end'))
             translation = translate(self.entry.get_text(), self.fromLang, self.toLang)
-            print "%s: %s\n  %s: %s" % (self.fromLang, self.entry.get_text(), self.toLang, translation)
-            self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '\n   %s: %s' % (self.toLang, translation))
+            self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), ' %s\n  %s:' % (self.entry.get_text(), self.toLang))
+            front = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
+            front.backward_word_start()
+            back = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
+            self.resultbuffer1.apply_tag_by_name('toLang', front, back)
+            self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), ' %s' % (translation))
             self.result1.scroll_mark_onscreen(self.resultbuffer1.get_mark('end'))
+            print "%s: %s\n  %s: %s" % (self.fromLang, self.entry.get_text(), self.toLang, translation)
 
 ## ------*------ End CALLBACKS ------*------
 ## ------*------ End CLASS ------*------
