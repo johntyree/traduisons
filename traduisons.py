@@ -228,7 +228,7 @@ class TranslateWindow:
         self.inputwindow.set_size_request(250, 89)
         self.inputwindow.set_title("Traduisons!")
         try:
-            self.inputwindow.set_icon_from_file(os.path.join(appPath, "traduisons_icon.png"))
+            self.inputwindow.set_icon_from_file(os.path.join(appPath, "traduisons_icon.ico"))
         except Exception, e:
             pass
             #print e.message
