@@ -263,7 +263,7 @@ class TranslateWindow:
         self.entry.set_max_length(0)
         self.entry.connect('activate', self.enter_callback)
 
-        self.entry.select_region(0, len(self.entry.get_text()))
+        self.entry.select_region(0, -1)
         self.hbox1.pack_start(self.entry, True, True, 1)
         self.tooltips.set_tip(self.entry, msg_HELP)
         self.entry.set_text("Mouse over for helpful tooltips")
@@ -308,7 +308,7 @@ class TranslateWindow:
         entry_set_text, self.fromLang, self.toLang, SendFlag = changelang(self.entry.get_text(), self.fromLang, self.toLang, self)
         self.langbox.set_markup('' + self.fromLang + ' | ' + self.toLang + ':  ')
         self.entry.set_text(entry_set_text)
-        self.entry.select_region(0, len(self.entry.get_text()))
+        self.entry.select_region(0, -1)
         if SendFlag:
             if self.resultbuffer1.get_text(self.resultbuffer1.get_start_iter(), self.resultbuffer1.get_end_iter()) != '': self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '\n')
             # Setting marks to apply fromLang and toLang tags
