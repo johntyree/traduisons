@@ -28,7 +28,7 @@
     MA 02110-1301, USA.
 """
 
-import urllib2, string, htmlentitydefs, re, sys, os, pygtk, pango, json
+import urllib2, urllib, string, htmlentitydefs, re, sys, os, pygtk, pango, json
 
 msg_VERSION = "0.2.4"
 msg_BUGS = "Bugs, suggestions at <http://code.google.com/p/traduisons/issues/list>"
@@ -186,6 +186,11 @@ def changelang(start_text, fromLang, toLang, ViewObj = None):
 
     return (start_text, fromLang, toLang, SendFlag)
 
+def detectLang(text):
+    '''Return the guessed two letter code corresponding to text'''
+    urldata = urllib.urlencode({'v': 1.0, 'q': text})
+    response = urllib2.urlopen(urllib2.Request('http://ajax.googleapis.com/ajax/services/language/detect?%s' % urldata, None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read()
+    return json.loads(response)['responseData']['language']
 
 def translate(start_text, fromLang, toLang):
     """Return translated start_text from fromLang to toLang."""
@@ -196,10 +201,15 @@ def translate(start_text, fromLang, toLang):
         ## Use the official google translate-api via REST
         ## 'auto' needs to be set to blank now
         if fromLang == 'auto':
-            fromLangTemp = ''
+            fromLangTemp = detectLang(start_text) 
+            print '%s detected' % fromLangTemp
         else:
             fromLangTemp = fromLang
-        response = unquotehtml(urllib2.urlopen(urllib2.Request('http://ajax.googleapis.com/ajax/services/language/translate', 'v=1.0&q=%s&langpair=%s%%7C%s' % (start_text, fromLangTemp, toLang), {'User-Agent':'Traduisons/%s' % msg_VERSION})).read())
+        urldata = urllib.urlencode({'v': 1.0,
+                                    'q': start_text,
+                                    'langpair' : '%s|%s' % (fromLangTemp, toLang)
+                                   })
+        response = unquotehtml(urllib2.urlopen(urllib2.Request('http://ajax.googleapis.com/ajax/services/language/translate?%s' % (urldata), None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read())
         translated_text = json.loads(response)['responseData']['translatedText']
     ##  Paste to clipboard
         if guiflag:
@@ -323,13 +333,18 @@ class TranslateWindow:
                 self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '\n')
             # Sending out text for translation
             self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), 'translating...')
+            self.result1.scroll_mark_onscreen(self.resultbuffer1.get_mark('end'))
             front = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
             front.backward_word_start()
             
             translation = translate(self.entry.get_text(), self.fromLang, self.toLang)
             self.resultbuffer1.delete(front, self.resultbuffer1.get_end_iter())
             # Setting marks to apply fromLang and toLang tags
-            self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '%s:' % (self.fromLang))
+            if self.fromLang == 'auto':
+                fromLangTemp = detectLang(self.entry.get_text())
+            else:
+                fromLangTemp = self.fromLang
+            self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '%s:' % fromLangTemp)
             front = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
             front.backward_word_start()
             back = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
