@@ -28,7 +28,7 @@
     MA 02110-1301, USA.
 """
 
-import urllib2, string, htmlentitydefs, re, sys, os, pygtk, pango
+import urllib2, string, htmlentitydefs, re, sys, os, pygtk, pango, json
 
 msg_VERSION = "0.2.4"
 msg_BUGS = "Bugs, suggestions at <http://code.google.com/p/traduisons/issues/list>"
@@ -131,7 +131,8 @@ def changelang(start_text, fromLang, toLang, ViewObj = None):
     
     ## SendFlag gets changed to false if not sending an http request.
     SendFlag = True
-    if start_text in ('.exit', '.quit', '.quitter', 'exit()'): sys.exit()
+    if start_text == "": SendFlag = False
+    elif start_text in ('.exit', '.quit', '.quitter', 'exit()'): sys.exit()
     elif start_text in ('.clear', 'clear()'):
         SendFlag = False
         clearBuffer(ViewObj)
@@ -142,7 +143,8 @@ def changelang(start_text, fromLang, toLang, ViewObj = None):
         if not fromLang == 'auto':
             toLang, fromLang = fromLang, toLang
         try:
-            if start_text == '/': SendFlag, start_text = False, ""
+            # Cut off the '/' character if necessary
+            if start_text == '/': (SendFlag, start_text) = (False, "")
             elif start_text[-1] == '/': start_text = start_text[:-1]
             elif start_text[0] == '/': start_text = start_text[1:]
         except:
@@ -191,7 +193,14 @@ def translate(start_text, fromLang, toLang):
     global unicodeflag ## Declare as global to avoid UnboundLocalError
     try:
     ##  Open the URL, parse it with regex, convert to UTF-8 if possible, and store string.
-        translated_text = unquotehtml(re.search(r"<div id=result_box dir=\"ltr\">(.*?)</div>",urllib2.urlopen(urllib2.Request('http://www.google.com/translate_t?', 'text=%s&sl=%s&tl=%s' % (start_text, fromLang, toLang), {'User-Agent':'Mozilla/5.0'})).read()).group(1))
+        ## Use the official google translate-api via REST
+        ## 'auto' needs to be set to blank now
+        if fromLang == 'auto':
+            fromLangTemp = ''
+        else:
+            fromLangTemp = fromLang
+        response = unquotehtml(urllib2.urlopen(urllib2.Request('http://ajax.googleapis.com/ajax/services/language/translate', 'v=1.0&q=%s&langpair=%s%%7C%s' % (start_text, fromLangTemp, toLang), {'User-Agent':'Traduisons/%s' % msg_VERSION})).read())
+        translated_text = json.loads(response)['responseData']['translatedText']
     ##  Paste to clipboard
         if guiflag:
             clipboard.set_text(translated_text)
@@ -310,7 +319,15 @@ class TranslateWindow:
         self.entry.set_text(entry_set_text)
         self.entry.select_region(0, -1)
         if SendFlag:
-            if self.resultbuffer1.get_text(self.resultbuffer1.get_start_iter(), self.resultbuffer1.get_end_iter()) != '': self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '\n')
+            if self.resultbuffer1.get_text(self.resultbuffer1.get_start_iter(), self.resultbuffer1.get_end_iter()) != '':
+                self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '\n')
+            # Sending out text for translation
+            self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), 'translating...')
+            front = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
+            front.backward_word_start()
+            
+            translation = translate(self.entry.get_text(), self.fromLang, self.toLang)
+            self.resultbuffer1.delete(front, self.resultbuffer1.get_end_iter())
             # Setting marks to apply fromLang and toLang tags
             self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '%s:' % (self.fromLang))
             front = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
@@ -318,7 +335,6 @@ class TranslateWindow:
             back = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
             self.resultbuffer1.apply_tag_by_name('fromLang', front, back)
             self.result1.scroll_mark_onscreen(self.resultbuffer1.get_mark('end'))
-            translation = translate(self.entry.get_text(), self.fromLang, self.toLang)
             self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), ' %s\n  %s:' % (self.entry.get_text(), self.toLang))
             front = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
             front.backward_word_start()
