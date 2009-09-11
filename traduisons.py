@@ -30,7 +30,7 @@
 
 import urllib2, urllib, string, htmlentitydefs, re, sys, os, pygtk, pango, json
 
-msg_VERSION = "0.2.4"
+msg_VERSION = "0.2.5"
 msg_BUGS = "Bugs, suggestions at <http://code.google.com/p/traduisons/issues/list>"
 msg_USAGE = """Usage: %s [OPTION]...
 Translate a string between languages using Google Translate.
@@ -244,8 +244,10 @@ class TranslateWindow:
 
         ## create a new window
         self.inputwindow = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        self.inputwindow.set_size_request(250, 89)
+        self.inputwindow.set_size_request(250, 95)
         self.inputwindow.set_title("Traduisons!")
+
+        ## Try to load tooltip or skip
         try:
             self.inputwindow.set_icon_from_file(os.path.join(appPath, "traduisons_icon.ico"))
         except Exception, e:
@@ -259,23 +261,19 @@ class TranslateWindow:
         self.AccelGroup.connect_group(ord('Q'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: gtk.main_quit())
         self.AccelGroup.connect_group(ord('N'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: clearBuffer(self))
         self.inputwindow.add_accel_group(self.AccelGroup)
-        ##self.inputwindow.add_accelerator("activate", self.AccelGroup, ord('Q'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
 
         self.vbox1 = gtk.VBox(False, 0)
         self.inputwindow.add(self.vbox1)
-        self.vbox1.show()
 
 ##  ----v---- Upper half of window ----v----
         self.hbox1 = gtk.HBox(False, 0)
         self.vbox1.pack_start(self.hbox1, False, False, 3)
-        self.hbox1.show()
 
         ## language label
         self.langbox = gtk.Label()
         self.langbox.set_markup('' + self.fromLang + ' | ' + self.toLang + ':  ')
         self.hbox1.pack_start(self.langbox, False, False, 1)
         self.tooltips.set_tip(self.langbox, msg_LANGTIP)
-        self.langbox.show()
 
         ## Entry box
         self.entry = gtk.Entry()
@@ -286,13 +284,11 @@ class TranslateWindow:
         self.hbox1.pack_start(self.entry, True, True, 1)
         self.tooltips.set_tip(self.entry, msg_HELP)
         self.entry.set_text("Mouse over for helpful tooltips")
-        self.entry.show()
 ##  ----^---- Upper half of window ----^----
 
 ##  ----v---- Lower Half of window ----v----
         self.hbox2 = gtk.HBox(False, 0)
         self.vbox1.pack_start(self.hbox2)
-        self.hbox2.show()
 
         ## Result window
         self.result1 = gtk.TextView()
@@ -304,18 +300,33 @@ class TranslateWindow:
         self.resultbuffer1.create_tag('fromLang', foreground = "dark red")
         self.resultbuffer1.create_tag('toLang',foreground = "dark blue")
         self.resultbuffer1.create_mark('end', self.resultbuffer1.get_end_iter(), False)
-        self.result1.show()
 
         ## Scroll Bar
         self.resultscroll = gtk.ScrolledWindow()
         self.resultscroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         self.resultscroll.add(self.result1)
-
         self.hbox2.pack_start(self.resultscroll, True, True, 1)
-        self.resultscroll.show()
+
+        ## Custom status bar
+        self.hbox3 = gtk.HBox(False, 0)
+        self.statusBar1 = gtk.Label()
+        self.statusBar1.set_alignment(0, 0.5)
+        self.statusBar2 = gtk.Label()
+        self.vbox1.pack_start(self.hbox3)
+        self.hbox3.pack_start(self.statusBar1)
+        self.hbox3.pack_start(self.statusBar2, False)
+        try:
+            googlePNG = gtk.Image()
+            googlePNG.set_from_file('../wiki/images/google-small-logo.png')
+            self.statusBar2.set_text("powered by ")
+            self.hbox3.pack_start(googlePNG, False)
+        except Exception, e:
+            self.statusBar2.set_text("powered by Google ")
+        self.statusBar2.set_alignment(1, 0.5)
+
 ##  ----^---- Lower Half of window ----^----
 
-        self.inputwindow.show()
+        self.inputwindow.show_all()
 
 ## ------*------ START CALLBACKS ------*------
 
@@ -332,13 +343,9 @@ class TranslateWindow:
             if self.resultbuffer1.get_text(self.resultbuffer1.get_start_iter(), self.resultbuffer1.get_end_iter()) != '':
                 self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '\n')
             # Sending out text for translation
-            self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), 'translating...')
-            self.result1.scroll_mark_onscreen(self.resultbuffer1.get_mark('end'))
-            front = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
-            front.backward_word_start()
-            
+            self.statusBar1.set_text('translating...')
             translation = translate(self.entry.get_text(), self.fromLang, self.toLang)
-            self.resultbuffer1.delete(front, self.resultbuffer1.get_end_iter())
+            self.statusBar1.set_text('')
             # Setting marks to apply fromLang and toLang tags
             if self.fromLang == 'auto':
                 fromLangTemp = detectLang(self.entry.get_text())
