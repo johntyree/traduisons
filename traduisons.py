@@ -28,7 +28,11 @@
     MA 02110-1301, USA.
 """
 
-import urllib2, urllib, string, htmlentitydefs, re, sys, os, pygtk, pango, json
+import urllib2, urllib, string, htmlentitydefs, re, sys, os, pygtk, pango
+try:
+    import json
+except(ImportError):
+    import simplejson as json
 
 msg_VERSION = "0.2.5"
 msg_BUGS = "Bugs, suggestions at <http://code.google.com/p/traduisons/issues/list>"
@@ -312,7 +316,7 @@ class TranslateWindow:
         self.statusBar1 = gtk.Label()
         self.statusBar1.set_alignment(0, 0.5)
         self.statusBar2 = gtk.Label()
-        self.vbox1.pack_start(self.hbox3)
+        self.vbox1.pack_start(self.hbox3, False)
         self.hbox3.pack_start(self.statusBar1)
         self.hbox3.pack_start(self.statusBar2, False)
         try:
