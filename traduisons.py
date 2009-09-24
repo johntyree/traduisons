@@ -29,12 +29,14 @@
 """
 
 import urllib2, urllib, string, htmlentitydefs, re, sys, os, pygtk, pango
+
+# In python <= 2.5, standard 'json' is not included 
 try:
     import json
 except(ImportError):
     import simplejson as json
 
-msg_VERSION = "0.2.5"
+msg_VERSION = "0.3.0"
 msg_BUGS = "Bugs, suggestions at <http://code.google.com/p/traduisons/issues/list>"
 msg_USAGE = """Usage: %s [OPTION]...
 Translate a string between languages using Google Translate.
@@ -393,8 +395,6 @@ class TranslateWindow:
 ## ------*------ End CLASS ------*------
 ## ------*------ END GUI ------*------
 
-
-# Rework this to avoid these rediculous globals. Take clipboarding out of backend.
 
 def main():
     global guiflag; guiflag = True

@@ -16,11 +16,20 @@ class Py2exeCommand(build_exe.py2exe):
 core.setup(
     name = "Traduisons!",
     description = "A front-end to Google Translate.",
-    version = "0.2.3",
+    version = "0.3.0",
     windows = [
         {"script": "traduisons.py",
         "icon_resources": [(1, "traduisons_icon.ico")]
         }
+    ],
+    options = {
+        'py2exe': {
+            'packages': 'simplejson',
+        },
+    },
+
+    datafiles = [
+        ("google-small-logo.png"),
     ],
     cmdclass={
         'py2exe': Py2exeCommand,
