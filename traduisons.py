@@ -215,10 +215,7 @@ def translate(start_text, fromLang, toLang):
                                    })
         response = unquotehtml(urllib2.urlopen(urllib2.Request('http://ajax.googleapis.com/ajax/services/language/translate?%s' % (urldata), None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read())
         translated_text = json.loads(response)['responseData']['translatedText']
-    ##  Paste to clipboard
-        if guiflag:
-            clipboard.set_text(translated_text)
-            clipboard.store()
+            
         if unicodeflag: translated_text = translated_text.encode("utf-8")
     ##  If translated_text is empty (no translation found) handle exception.
     except (AttributeError, urllib2.HTTPError):
@@ -233,6 +230,28 @@ def translate(start_text, fromLang, toLang):
 ## -----v----- BEGIN GUI -----v-----
 class TranslateWindow:
     """Gui frontend to translate function."""
+    ## If gtk or pygtk fails to import, warn user and run at cli.
+    try:
+        import gtk; global gtk
+        global clipboard; clipboard = gtk.clipboard_get()
+    except ImportError:
+        print """  Import module GTK: FAIL"""
+        guiflagfail = False
+    try:
+        import pygtk
+        pygtk.require('2.0')
+    except ImportError:
+        guiflagfail = False
+        print """  Import module pyGTK: FAIL"""
+    try:
+        guiflagfail
+        print """
+        Install modules or try:
+            python "%s" --no-gui
+            """ % (sys.argv[0])
+        sys.exit()
+    except NameError:
+        pass
 
     def __init__(self, fromLang, toLang, dictLang):
 		## localize variables
@@ -283,11 +302,8 @@ class TranslateWindow:
         self.entry = gtk.Entry()
         self.entry.set_max_length(0)
         self.entry.connect('activate', self.enter_callback)
-
-        self.entry.select_region(0, -1)
-        self.hbox1.pack_start(self.entry, True, True, 1)
         self.tooltips.set_tip(self.entry, msg_HELP)
-        self.entry.set_text("Mouse over for helpful tooltips")
+        self.hbox1.pack_start(self.entry, True, True, 1)
 ##  ----^---- Upper half of window ----^----
 
 ##  ----v---- Lower Half of window ----v----
@@ -321,7 +337,7 @@ class TranslateWindow:
         self.hbox3.pack_start(self.statusBar2, False)
         try:
             googlePNG = gtk.Image()
-            googlePNG.set_from_file('../wiki/images/google-small-logo.png')
+            googlePNG.set_from_file(os.path.join(appPath, 'google-small-logo.png'))
             self.statusBar2.set_text("powered by ")
             self.hbox3.pack_start(googlePNG, False)
         except Exception, e:
@@ -349,6 +365,9 @@ class TranslateWindow:
             # Sending out text for translation
             self.statusBar1.set_text('translating...')
             translation = translate(self.entry.get_text(), self.fromLang, self.toLang)
+            ##  Paste to clipboard
+            clipboard.set_text(translation)
+            clipboard.store()
             self.statusBar1.set_text('')
             # Setting marks to apply fromLang and toLang tags
             if self.fromLang == 'auto':
@@ -374,6 +393,9 @@ class TranslateWindow:
 ## ------*------ End CLASS ------*------
 ## ------*------ END GUI ------*------
 
+
+# Rework this to avoid these rediculous globals. Take clipboarding out of backend.
+
 def main():
     global guiflag; guiflag = True
     global unicodeflag; unicodeflag = True
@@ -398,25 +420,6 @@ There is NO WARRANTY, to the extent permitted by law.
             print msg_USAGE, "\n", msg_BUGS
             sys.exit()
 
-    ## If gtk or pygtk fails to import, warn user and run at cli.
-    if guiflag:
-        try:
-            import gtk; global gtk
-            global clipboard; clipboard = gtk.clipboard_get()
-        except ImportError:
-            print """  Import module GTK: FAIL"""
-            guiflag = False
-        try:
-            import pygtk
-            pygtk.require('2.0')
-        except ImportError:
-            guiflag = False
-            print """  Import module pyGTK: FAIL"""
-        if not guiflag:
-            print """
-            Install modules or try:
-                python "%s" --no-gui
-                    """ % (sys.argv[0])
 
     ## Start traduisons!
     if guiflag:
