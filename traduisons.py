@@ -426,6 +426,7 @@ There is NO WARRANTY, to the extent permitted by law.
         TranslateWindow(fromLang, toLang, dictLang)
         gtk.main()
     else:
+        print "\npowered by Google ..."
         while True:
             stringLang = fromLang + "|" + toLang + ": "
             start_text = ''
