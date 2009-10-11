@@ -36,7 +36,7 @@ try:
 except(ImportError):
     import simplejson as json
 
-msg_VERSION = "0.3.0"
+msg_VERSION = "0.3.1"
 msg_BUGS = "Bugs, suggestions at <http://code.google.com/p/traduisons/issues/list>"
 msg_USAGE = """Usage: %s [OPTION]...
 Translate a string between languages using Google Translate.
