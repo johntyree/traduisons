@@ -109,7 +109,6 @@ dictLang = {'Detect Language' : 'auto',
 
 def convertentity(m):
     """Convert a HTML entity into normal string (ISO-8859-1)"""
-
     if m.group(1)=='#':
         try:
             return chr(int(m.group(2)))
@@ -124,8 +123,8 @@ def convertentity(m):
 def unquotehtml(s):
     """Convert a HTML quoted string into normal string (ISO-8859-1).
     Works with &#XX; and with &nbsp; &gt; etc."""
+    return re.sub(r'&(#)?(.+);',convertentity,s)
 
-    return re.sub(r'&(#?)(.+?);',convertentity,s)
 
 def clearBuffer(ViewObj):
     if ViewObj:
@@ -134,7 +133,6 @@ def clearBuffer(ViewObj):
 
 def changelang(start_text, fromLang, toLang, ViewObj = None):
     """Change target languages according to dictLang."""
-    
     ## SendFlag gets changed to false if not sending an http request.
     SendFlag = True
     if start_text == "": SendFlag = False
@@ -192,15 +190,16 @@ def changelang(start_text, fromLang, toLang, ViewObj = None):
 
     return (start_text, fromLang, toLang, SendFlag)
 
+
 def detectLang(text):
     '''Return the guessed two letter code corresponding to text'''
     urldata = urllib.urlencode({'v': 1.0, 'q': text})
     response = urllib2.urlopen(urllib2.Request('http://ajax.googleapis.com/ajax/services/language/detect?%s' % urldata, None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read()
     return json.loads(response)['responseData']['language']
 
+
 def translate(start_text, fromLang, toLang):
     """Return translated start_text from fromLang to toLang."""
-
     global unicodeflag ## Declare as global to avoid UnboundLocalError
     try:
     ##  Open the URL, parse it with regex, convert to UTF-8 if possible, and store string.
@@ -215,8 +214,8 @@ def translate(start_text, fromLang, toLang):
                                     'q': start_text,
                                     'langpair' : '%s|%s' % (fromLangTemp, toLang)
                                    })
-        response = unquotehtml(urllib2.urlopen(urllib2.Request('http://ajax.googleapis.com/ajax/services/language/translate?%s' % (urldata), None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read())
-        translated_text = json.loads(response)['responseData']['translatedText']
+        response = urllib2.urlopen(urllib2.Request('http://ajax.googleapis.com/ajax/services/language/translate?%s' % (urldata), None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read()
+        translated_text = unquotehtml(json.loads(response)['responseData']['translatedText'])
             
         if unicodeflag: translated_text = translated_text.encode("utf-8")
     ##  If translated_text is empty (no translation found) handle exception.
