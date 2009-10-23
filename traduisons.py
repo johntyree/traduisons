@@ -36,7 +36,7 @@ try:
 except(ImportError):
     import simplejson as json
 
-msg_VERSION = "0.3.1"
+msg_VERSION = "0.3.2"
 msg_BUGS = "Bugs, suggestions at <http://code.google.com/p/traduisons/issues/list>"
 msg_USAGE = """Usage: %s [OPTION]...
 Translate a string between languages using Google Translate.
@@ -115,6 +115,7 @@ def convertentity(m):
         except XValueError:
             return '&#%s;' % m.group(2)
     try:
+        print "checking for", m.group(2)
         return htmlentitydefs.entitydefs[m.group(2)]
     except KeyError:
         return '&%s;' % m.group(2)
@@ -123,8 +124,7 @@ def convertentity(m):
 def unquotehtml(s):
     """Convert a HTML quoted string into normal string (ISO-8859-1).
     Works with &#XX; and with &nbsp; &gt; etc."""
-    return re.sub(r'&(#)?(.+);',convertentity,s)
-
+    return re.sub(r'&(#)?([^;]+);',convertentity,s)
 
 def clearBuffer(ViewObj):
     if ViewObj:
