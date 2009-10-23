@@ -115,7 +115,6 @@ def convertentity(m):
         except XValueError:
             return '&#%s;' % m.group(2)
     try:
-        print "checking for", m.group(2)
         return htmlentitydefs.entitydefs[m.group(2)]
     except KeyError:
         return '&%s;' % m.group(2)
