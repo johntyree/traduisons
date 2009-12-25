@@ -336,10 +336,13 @@ class TranslateWindow:
         self.hbox3.pack_start(self.statusBar1)
         self.hbox3.pack_start(self.statusBar2, False)
         try:
-            googlePNG = gtk.Image()
-            googlePNG.set_from_file(os.path.join(appPath, 'google-small-logo.png'))
+            googleLogoPath = os.path.join(appPath, 'google-small-logo.png')
+            if not os.path.isfile(googleLogoPath):
+                raise Exception
+            googleLogo = gtk.Image()
+            googleLogo.set_from_file(googleLogoPath)
             self.statusBar2.set_text("powered by ")
-            self.hbox3.pack_start(googlePNG, False)
+            self.hbox3.pack_start(googleLogo, False)
         except Exception, e:
             self.statusBar2.set_text("powered by Google ")
         self.statusBar2.set_alignment(1, 0.5)
