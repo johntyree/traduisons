@@ -218,7 +218,7 @@ def translate(start_text, fromLang, toLang):
             
         if unicodeflag: translated_text = translated_text.encode("utf-8")
     ##  If translated_text is empty (no translation found) handle exception.
-    except (AttributeError, urllib2.HTTPError):
+    except (TypeError, AttributeError, urllib2.HTTPError):
         translated_text = "Unable to translate text."
 
     except UnicodeDecodeError:
