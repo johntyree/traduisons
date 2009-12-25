@@ -36,7 +36,7 @@ try:
 except(ImportError):
     import simplejson as json
 
-msg_VERSION = "0.3.2"
+msg_VERSION = "0.3.3"
 msg_BUGS = "Bugs, suggestions at <http://code.google.com/p/traduisons/issues/list>"
 msg_USAGE = """Usage: %s [OPTION]...
 Translate a string between languages using Google Translate.
@@ -61,8 +61,10 @@ start_text = ""
 fromLang = "auto"
 toLang = "en"
 dictLang = {'Detect Language' : 'auto',
+            'Afrikaans' : 'af',
             'Albanian' : 'sq',
             'Arabic' : 'ar',
+            'Belarusian' : 'be',
             'Bulgarian' : 'bg',
             'Catalan' : 'ca',
             'Chinese' : 'zh-CN',
@@ -83,12 +85,17 @@ dictLang = {'Detect Language' : 'auto',
             'Hebrew' : 'iw',
             'Hindi' : 'hi',
             'Hungarian' : 'hu',
+            'Icelandic' : 'is',
             'Indonesian' : 'id',
+            'Irish' : 'ga',
+            'Gaelic' : 'ga',
             'Italian' : 'it',
             'Japanese' : 'ja',
             'Korean' : 'ko',
             'Latvian' : 'lv',
             'Lithuanian' : 'lt',
+            'Macedonian' : 'mk',
+            'Malay' : 'ms',
             'Maltese' : 'mt',
             'Norwegian' : 'no',
             'Persian' : 'fa',
@@ -100,11 +107,14 @@ dictLang = {'Detect Language' : 'auto',
             'Slovak' : 'sk',
             'Slovenian' : 'sl',
             'Spanish' : 'es',
+            'Swahili' : 'sw',
             'Swedish' : 'sv',
             'Thai' : 'th',
             'Turkish' : 'tr',
             'Ukrainian' : 'uk',
-            'Vietnamese' : 'vi'
+            'Vietnamese' : 'vi',
+            'Welsh' : 'cy',
+            'Yiddish' : 'yi',
             }
 
 def convertentity(m):
