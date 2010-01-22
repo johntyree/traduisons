@@ -36,7 +36,7 @@ try:
 except(ImportError):
     import simplejson as json
 
-msg_VERSION = "0.3.1"
+msg_VERSION = "0.3.3"
 msg_BUGS = "Bugs, suggestions at <http://code.google.com/p/traduisons/issues/list>"
 msg_USAGE = """Usage: %s [OPTION]...
 Translate a string between languages using Google Translate.
@@ -61,8 +61,10 @@ start_text = ""
 fromLang = "auto"
 toLang = "en"
 dictLang = {'Detect Language' : 'auto',
+            'Afrikaans' : 'af',
             'Albanian' : 'sq',
             'Arabic' : 'ar',
+            'Belarusian' : 'be',
             'Bulgarian' : 'bg',
             'Catalan' : 'ca',
             'Chinese' : 'zh-CN',
@@ -83,12 +85,17 @@ dictLang = {'Detect Language' : 'auto',
             'Hebrew' : 'iw',
             'Hindi' : 'hi',
             'Hungarian' : 'hu',
+            'Icelandic' : 'is',
             'Indonesian' : 'id',
+            'Irish' : 'ga',
+            'Gaelic' : 'ga',
             'Italian' : 'it',
             'Japanese' : 'ja',
             'Korean' : 'ko',
             'Latvian' : 'lv',
             'Lithuanian' : 'lt',
+            'Macedonian' : 'mk',
+            'Malay' : 'ms',
             'Maltese' : 'mt',
             'Norwegian' : 'no',
             'Persian' : 'fa',
@@ -100,11 +107,14 @@ dictLang = {'Detect Language' : 'auto',
             'Slovak' : 'sk',
             'Slovenian' : 'sl',
             'Spanish' : 'es',
+            'Swahili' : 'sw',
             'Swedish' : 'sv',
             'Thai' : 'th',
             'Turkish' : 'tr',
             'Ukrainian' : 'uk',
-            'Vietnamese' : 'vi'
+            'Vietnamese' : 'vi',
+            'Welsh' : 'cy',
+            'Yiddish' : 'yi',
             }
 
 def convertentity(m):
@@ -123,8 +133,7 @@ def convertentity(m):
 def unquotehtml(s):
     """Convert a HTML quoted string into normal string (ISO-8859-1).
     Works with &#XX; and with &nbsp; &gt; etc."""
-    return re.sub(r'&(#)?(.+);',convertentity,s)
-
+    return re.sub(r'&(#)?([^;]+);',convertentity,s)
 
 def clearBuffer(ViewObj):
     if ViewObj:
@@ -219,7 +228,7 @@ def translate(start_text, fromLang, toLang):
             
         if unicodeflag: translated_text = translated_text.encode("utf-8")
     ##  If translated_text is empty (no translation found) handle exception.
-    except (AttributeError, urllib2.HTTPError):
+    except (TypeError, AttributeError, urllib2.HTTPError):
         translated_text = "Unable to translate text."
 
     except UnicodeDecodeError:
@@ -337,10 +346,13 @@ class TranslateWindow:
         self.hbox3.pack_start(self.statusBar1)
         self.hbox3.pack_start(self.statusBar2, False)
         try:
-            googlePNG = gtk.Image()
-            googlePNG.set_from_file(os.path.join(appPath, 'google-small-logo.png'))
+            googleLogoPath = os.path.join(appPath, 'google-small-logo.png')
+            if not os.path.isfile(googleLogoPath):
+                raise Exception
+            googleLogo = gtk.Image()
+            googleLogo.set_from_file(googleLogoPath)
             self.statusBar2.set_text("powered by ")
-            self.hbox3.pack_start(googlePNG, False)
+            self.hbox3.pack_start(googleLogo, False)
         except Exception, e:
             self.statusBar2.set_text("powered by Google ")
         self.statusBar2.set_alignment(1, 0.5)
