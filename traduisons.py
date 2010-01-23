@@ -135,9 +135,9 @@ def unquotehtml(s):
     Works with &#XX; and with &nbsp; &gt; etc."""
     return re.sub(r'&(#)?([^;]+);',convertentity,s)
 
-def clearBuffer(ViewObj):
-    if ViewObj:
-        ViewObj.resultbuffer1.set_text('')
+def clearBuffer(buffer_obj):
+    if buffer_obj:
+        buffer_obj.set_text('')
     return
 
 def changelang(start_text, fromLang, toLang, ViewObj = None):
@@ -148,7 +148,7 @@ def changelang(start_text, fromLang, toLang, ViewObj = None):
     elif start_text in ('.exit', '.quit', '.quitter', 'exit()'): sys.exit()
     elif start_text in ('.clear', 'clear()'):
         SendFlag = False
-        clearBuffer(ViewObj)
+        clearBuffer(ViewObj.resultbuffer1)
 
 	## Use the '/' character to reverse translation direction. Then strip.
     elif start_text[0] == '/' or start_text[-1] == '/':
@@ -215,7 +215,7 @@ def translate(start_text, fromLang, toLang):
         ## Use the official google translate-api via REST
         ## 'auto' needs to be set to blank now
         if fromLang == 'auto':
-            fromLangTemp = detectLang(start_text) 
+            fromLangTemp = detectLang(start_text)
             print '%s detected' % fromLangTemp
         else:
             fromLangTemp = fromLang
