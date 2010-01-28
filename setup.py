@@ -1,9 +1,11 @@
+#!/usr/bin/env python
 from distutils import core
 
 # For side effects!
 import py2exe
 
 from py2exe import build_exe
+from traduisons import msg_VERSION
 
 class Py2exeCommand(build_exe.py2exe):
     def get_hidden_imports(self):
@@ -16,7 +18,7 @@ class Py2exeCommand(build_exe.py2exe):
 core.setup(
     name = "Traduisons!",
     description = "A front-end to Google Translate.",
-    version = "0.3.2",
+    version = msg_VERSION,
     windows = [
         {"script": "traduisons.py",
         "icon_resources": [(1, "traduisons_icon.ico")]
