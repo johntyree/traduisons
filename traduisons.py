@@ -138,6 +138,7 @@ class translator:
             if not self.dictLang.has_key(k): print k, ': Unavailable'
 
     def update_languages(self):
+        '''Naively try to determine if new languages are available by scraping http://translate.google.com'''
         restr = '<meta name="description" content="Google&#39;s free online language translation service instantly translates text and web pages. This translator supports: (.*?)">'
         resp = urllib2.urlopen(urllib2.Request('http://translate.google.com', None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read()
         m = re.search(restr, resp)
@@ -156,6 +157,7 @@ class translator:
         return False
 
     def languages(self):
+        '''Return a string of pretty-printed, newline-delimited languages in the format Name : code'''
         l = []
         width = max([len(x) for x in self.dictLang.keys()])
         for item in sorted(self.dictLang.keys()):
@@ -163,6 +165,7 @@ class translator:
         return '\n'.join(l)
 
     def toLang(self, l = None):
+        '''Get or set target language'''
         if l is not None:
             if l == 'auto': return False
             ## Check character code
@@ -173,6 +176,7 @@ class translator:
         return self._toLang
 
     def fromLang(self, l = None):
+        '''Get or set source language'''
         if l is not None:
             ## Check character code
             if l in self.dictLang.values():
@@ -183,6 +187,7 @@ class translator:
         return self._fromLang
 
     def swapLang(self):
+        '''Reverse direction the direction of translation'''
         f = self._fromLang
         t = self._toLang
         if not self.toLang(f) or not self.fromLang(t):
@@ -192,13 +197,14 @@ class translator:
         return True
 
     def raw_text(self, t = None):
+        '''Get or set translation text, ignoring embedded directives such as '/' and '.' '''
         if t is not None:
             t = unicode(t)
             self._text = t
         return self._text
 
     def text(self, text = None):
-        """Handle special cases of requested text."""
+        '''Get or set translation text, handling embedded directives such as '/' and '.' '''
         if text is None: return self._text
         if text == '':
             self._text = u''
@@ -228,13 +234,13 @@ class translator:
         return (self._text, RETURN_CODE)
 
     def detect_lang(self):
-        '''Return the guessed two letter code corresponding to text'''
+        '''Return the guessed two letter code corresponding to translation text'''
         urldata = urllib.urlencode({'v': 1.0, 'q': self._text})
         response = urllib2.urlopen(urllib2.Request('http://ajax.googleapis.com/ajax/services/language/detect?%s' % urldata, None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read()
         return json.loads(response)['responseData']['language']
 
     def translate(self):
-        """Return translated text from fromLang to toLang."""
+        '''Return translated text from fromLang to toLang.'''
         if self._text == '':
             self.result = ''
         else:
@@ -268,8 +274,8 @@ class translator:
         return True
 
     def _unquotehtml(self, s):
-        """Convert a HTML quoted string into unicode object.
-        Works with &#XX; and with &nbsp; &gt; etc."""
+        '''Convert a HTML quoted string into unicode object.
+        Works with &#XX; and with &nbsp; &gt; etc.'''
         def convertentity(m):
             if m.group(1)=='#':
                 try:
@@ -288,7 +294,7 @@ class translator:
 
 ## -----v----- BEGIN GUI -----v-----
 class TranslateWindow(translator):
-    """Gui frontend to translate function."""
+    '''Gui frontend to translate function.'''
     ## If gtk or pygtk fails to import, warn user and run at cli.
     try:
         import gtk; global gtk
@@ -416,7 +422,7 @@ class TranslateWindow(translator):
 ## ------*------ START CALLBACKS ------*------
 
     def enter_callback(self, widget, data = None):
-        """Submit entrybox text for translation."""
+        '''Submit entrybox text for translation.'''
 
         if self.entry.get_text() in ('.clear', 'clear()'):
             self.resultbuffer1.set_text('')
@@ -487,6 +493,7 @@ class TranslateWindow(translator):
 ## ------*------ END GUI ------*------
 
 def clipboard_get():
+    '''Return a gtk.Clipboard object or False if gtk in unavailable'''
     try:
         import gtk
         class clipboard(gtk.Clipboard):
