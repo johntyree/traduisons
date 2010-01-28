@@ -36,7 +36,15 @@ try:
 except(ImportError):
     import simplejson as json
 
-msg_VERSION = "0.3.3"
+msg_VERSION = "0.4.0"
+msg_LICENSE = """Traduisons! %s
+http://traduisons.googlecode.com
+
+Copyright (C) 201 John E Tyree <johntyree@gmail.com>
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+""" % msg_VERSION
 msg_BUGS = "Bugs, suggestions at <http://code.google.com/p/traduisons/issues/list>"
 msg_USAGE = """Usage: %s [OPTION]...
 Translate a string between languages using Google Translate.
@@ -55,6 +63,7 @@ auto|en      Auto detect to English:
 es|          Change starting Language to Spanish:
 
 Please visit <http://code.google.com/p/traduisons/wiki> for help."""
+
 
 appPath = os.path.abspath(os.path.dirname(os.path.realpath(sys.argv[0])))
 start_text = ""
@@ -504,14 +513,7 @@ def main():
         elif arg in ('--no-gui', '-n'):
             guiflag = False
         elif arg in ("--version", "-v"):
-            print """Traduisons! %s
-http://traduisons.googlecode.com
-
-Copyright (C) 201 John E Tyree <johntyree@gmail.com>
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-""" % msg_VERSION
+            print msg_LICENSE
             sys.exit()
         else:
             print msg_USAGE, "\n", msg_BUGS
