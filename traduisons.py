@@ -10,7 +10,7 @@
     Works with proper language selected.
 """
 """
-    Copyright 2009 John E Tyree <johntyree@gmail.com>
+    Copyright 2010 John E Tyree <johntyree@gmail.com>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
     MA 02110-1301, USA.
 """
 
-import urllib2, urllib, string, htmlentitydefs, re, sys, os, pygtk, pango
+import urllib2, urllib, string, htmlentitydefs, re, sys, os
 
 # In python <= 2.5, standard 'json' is not included 
 try:
@@ -36,7 +36,15 @@ try:
 except(ImportError):
     import simplejson as json
 
-msg_VERSION = "0.3.3"
+msg_VERSION = "0.4.0"
+msg_LICENSE = """Traduisons! %s
+http://traduisons.googlecode.com
+
+Copyright (C) 201 John E Tyree <johntyree@gmail.com>
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+""" % msg_VERSION
 msg_BUGS = "Bugs, suggestions at <http://code.google.com/p/traduisons/issues/list>"
 msg_USAGE = """Usage: %s [OPTION]...
 Translate a string between languages using Google Translate.
@@ -56,194 +64,240 @@ es|          Change starting Language to Spanish:
 
 Please visit <http://code.google.com/p/traduisons/wiki> for help."""
 
+
 appPath = os.path.abspath(os.path.dirname(os.path.realpath(sys.argv[0])))
 start_text = ""
 fromLang = "auto"
 toLang = "en"
-dictLang = {'Detect Language' : 'auto',
-            'Afrikaans' : 'af',
-            'Albanian' : 'sq',
-            'Arabic' : 'ar',
-            'Belarusian' : 'be',
-            'Bulgarian' : 'bg',
-            'Catalan' : 'ca',
-            'Chinese' : 'zh-CN',
-            'Chinese (Simplified)' : 'zh-CN',
-            'Chinese (traditional)' : 'zh-TW',
-            'Croation' : 'hr',
-            'Czech' : 'cs',
-            'Danish' : 'da',
-            'Dutch' : 'nl',
-            'English' : 'en',
-            'Estonian' : 'et',
-            'Filipino' : 'tl',
-            'Finnish' : 'fi',
-            'French' : 'fr',
-            'Galician' : 'gl',
-            'German' : 'de',
-            'Greek' : 'el',
-            'Hebrew' : 'iw',
-            'Hindi' : 'hi',
-            'Hungarian' : 'hu',
-            'Icelandic' : 'is',
-            'Indonesian' : 'id',
-            'Irish' : 'ga',
-            'Gaelic' : 'ga',
-            'Italian' : 'it',
-            'Japanese' : 'ja',
-            'Korean' : 'ko',
-            'Latvian' : 'lv',
-            'Lithuanian' : 'lt',
-            'Macedonian' : 'mk',
-            'Malay' : 'ms',
-            'Maltese' : 'mt',
-            'Norwegian' : 'no',
-            'Persian' : 'fa',
-            'Polish' : 'pl',
-            'Portuguese' : 'pt',
-            'Romanian' : 'ro',
-            'Russian' : 'ru',
-            'Serbian' : 'sr',
-            'Slovak' : 'sk',
-            'Slovenian' : 'sl',
-            'Spanish' : 'es',
-            'Swahili' : 'sw',
-            'Swedish' : 'sv',
-            'Thai' : 'th',
-            'Turkish' : 'tr',
-            'Ukrainian' : 'uk',
-            'Vietnamese' : 'vi',
-            'Welsh' : 'cy',
-            'Yiddish' : 'yi',
-            }
 
-def convertentity(m):
-    """Convert a HTML entity into normal string (ISO-8859-1)"""
-    if m.group(1)=='#':
-        try:
-            return chr(int(m.group(2)))
-        except XValueError:
-            return '&#%s;' % m.group(2)
-    try:
-        return htmlentitydefs.entitydefs[m.group(2)]
-    except KeyError:
-        return '&%s;' % m.group(2)
+class translator:
+    dictLang = {'Detect Language' : 'auto',
+                'Afrikaans' : 'af',
+                'Albanian' : 'sq',
+                'Arabic' : 'ar',
+                'Belarusian' : 'be',
+                'Bulgarian' : 'bg',
+                'Catalan' : 'ca',
+                'Chinese' : 'zh-CN',
+                'Chinese (Simplified)' : 'zh-CN',
+                'Chinese (Traditional)' : 'zh-TW',
+                'Croatian' : 'hr',
+                'Czech' : 'cs',
+                'Danish' : 'da',
+                'Dutch' : 'nl',
+                'English' : 'en',
+                'Estonian' : 'et',
+                'Filipino' : 'tl',
+                'Finnish' : 'fi',
+                'French' : 'fr',
+                'Galician' : 'gl',
+                'German' : 'de',
+                'Greek' : 'el',
+                'Hebrew' : 'iw',
+                'Hindi' : 'hi',
+                'Hungarian' : 'hu',
+                'Icelandic' : 'is',
+                'Indonesian' : 'id',
+                'Irish' : 'ga',
+                'Gaelic' : 'ga',
+                'Italian' : 'it',
+                'Japanese' : 'ja',
+                'Korean' : 'ko',
+                'Latvian' : 'lv',
+                'Lithuanian' : 'lt',
+                'Macedonian' : 'mk',
+                'Malay' : 'ms',
+                'Maltese' : 'mt',
+                'Norwegian' : 'no',
+                'Persian' : 'fa',
+                'Polish' : 'pl',
+                'Portuguese' : 'pt',
+                'Romanian' : 'ro',
+                'Russian' : 'ru',
+                'Serbian' : 'sr',
+                'Slovak' : 'sk',
+                'Slovenian' : 'sl',
+                'Spanish' : 'es',
+                'Swahili' : 'sw',
+                'Swedish' : 'sv',
+                'Thai' : 'th',
+                'Turkish' : 'tr',
+                'Ukrainian' : 'uk',
+                'Vietnamese' : 'vi',
+                'Welsh' : 'cy',
+                'Yiddish' : 'yi',
+                }
 
+    def __init__(self, fromLang = 'auto', toLang = 'en', start_text = ''):
+        if not self.fromLang(fromLang): self.fromLang('auto')
+        if not self.toLang(toLang): self.toLang('en')
+        self._text = start_text
+        x = self.dictLang
+        self.update_languages()
+        for k in x:
+            if not self.dictLang.has_key(k): print k, ': Unavailable'
 
-def unquotehtml(s):
-    """Convert a HTML quoted string into normal string (ISO-8859-1).
-    Works with &#XX; and with &nbsp; &gt; etc."""
-    return re.sub(r'&(#)?([^;]+);',convertentity,s)
+    def update_languages(self):
+        '''Naively try to determine if new languages are available by scraping http://translate.google.com'''
+        restr = '<meta name="description" content="Google&#39;s free online language translation service instantly translates text and web pages. This translator supports: (.*?)">'
+        resp = urllib2.urlopen(urllib2.Request('http://translate.google.com', None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read()
+        m = re.search(restr, resp)
+        d = {}
+        if m:
+            names = m.group(1).split(', ')
+            for name in names:
+                n = re.search('<option  value="([^"]+)">%s</option>' % name, resp)
+                if n:
+                    d[name] = n.group(1)
+                else:
+                    return False
+            for k, v in [('Detect Language', 'auto'), ('Gaelic', 'el'), ('Chinese (Traditional)', 'zh-TW'), ('Chinese (Simplified)', 'zh-CN')]:
+                d[k] = v
+            self.dictLang = d
+        return False
 
-def clearBuffer(ViewObj):
-    if ViewObj:
-        ViewObj.resultbuffer1.set_text('')
-    return
+    def languages(self):
+        '''Return a string of pretty-printed, newline-delimited languages in the format Name : code'''
+        l = []
+        width = max([len(x) for x in self.dictLang.keys()])
+        for item in sorted(self.dictLang.keys()):
+            l.append(("%" + str(width) + 's' + ' : %s') % (item, self.dictLang[item]))
+        return '\n'.join(l)
 
-def changelang(start_text, fromLang, toLang, ViewObj = None):
-    """Change target languages according to dictLang."""
-    ## SendFlag gets changed to false if not sending an http request.
-    SendFlag = True
-    if start_text == "": SendFlag = False
-    elif start_text in ('.exit', '.quit', '.quitter', 'exit()'): sys.exit()
-    elif start_text in ('.clear', 'clear()'):
-        SendFlag = False
-        clearBuffer(ViewObj)
+    def toLang(self, l = None):
+        '''Get or set target language'''
+        if l is not None:
+            if l == 'auto': return False
+            ## Check character code
+            if l in self.dictLang.values(): self._toLang = l
+            else:
+                ## Check language name
+                self._toLang = self.dictLang.get(string.capitalize(l), self._toLang)
+        return self._toLang
 
-	## Use the '/' character to reverse translation direction. Then strip.
-    elif start_text[0] == '/' or start_text[-1] == '/':
-        ## 'auto' is not a valid toLang. Prevent swapping.
-        if not fromLang == 'auto':
-            toLang, fromLang = fromLang, toLang
-        try:
-            # Cut off the '/' character if necessary
-            if start_text == '/': (SendFlag, start_text) = (False, "")
-            elif start_text[-1] == '/': start_text = start_text[:-1]
-            elif start_text[0] == '/': start_text = start_text[1:]
-        except:
-            pass
+    def fromLang(self, l = None):
+        '''Get or set source language'''
+        if l is not None:
+            ## Check character code
+            if l in self.dictLang.values():
+                self._fromLang = l
+            else:
+                ## Check language name
+                self._fromLang = self.dictLang.get(string.capitalize(l), self._fromLang)
+        return self._fromLang
 
-    elif start_text in ('?', 'help', '-h', '-help', '--help'):
-        print '\n'
-        for item in sorted(dictLang.keys()):
-            print item + ' : ' + dictLang.get(item)
-        print '\n', msg_HELP, '\n'
+    def swapLang(self):
+        '''Reverse direction the direction of translation'''
+        f = self._fromLang
+        t = self._toLang
+        if not self.toLang(f) or not self.fromLang(t):
+            self._toLang = t
+            self._fromLang = f
+            return False
+        return True
 
-        if guiflag:
-            ViewObj.resultbuffer1.insert(ViewObj.resultbuffer1.get_end_iter(), '\nPlease visit:\nhttp://code.google.com/p/traduisons/wiki')
-            ViewObj.result1.scroll_mark_onscreen(ViewObj.resultbuffer1.get_mark('end'))
+    def raw_text(self, t = None):
+        '''Get or set translation text, ignoring embedded directives such as '/' and '.' '''
+        if t is not None:
+            t = unicode(t)
+            self._text = t
+        return self._text
 
-        start_text = ''
-        SendFlag = False
-
-    ## Use '|' character to change translation language(s).
-    elif start_text.find('|') + 1:
-        ## Check language name
-        if dictLang.get(string.capitalize(start_text[0:start_text.find('|')])):
-            fromLang = dictLang.get(string.capitalize(start_text[0:start_text.find('|')]))
-
-        ## Check 2-character code
-        elif start_text[0:start_text.find('|')] in dictLang.values():
-            fromLang = start_text[0:start_text.find('|')]
-
-        ## If start_text is in dictLang, set new toLang and restart loop.
-        if dictLang.get(string.capitalize(start_text[start_text.find('|') + 1:])):
-            toLang = dictLang.get(string.capitalize(start_text[start_text.find('|') + 1:]))
-
-        ## Check 2-character code
-        elif start_text[start_text.find('|') + 1:] in dictLang.values() and start_text[start_text.find('|') + 1:] != 'auto':
-            toLang = start_text[start_text.find('|') + 1:]
-
-        start_text = ''
-        SendFlag = False
-
-    return (start_text, fromLang, toLang, SendFlag)
-
-
-def detectLang(text):
-    '''Return the guessed two letter code corresponding to text'''
-    urldata = urllib.urlencode({'v': 1.0, 'q': text})
-    response = urllib2.urlopen(urllib2.Request('http://ajax.googleapis.com/ajax/services/language/detect?%s' % urldata, None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read()
-    return json.loads(response)['responseData']['language']
-
-
-def translate(start_text, fromLang, toLang):
-    """Return translated start_text from fromLang to toLang."""
-    global unicodeflag ## Declare as global to avoid UnboundLocalError
-    try:
-    ##  Open the URL, parse it with regex, convert to UTF-8 if possible, and store string.
-        ## Use the official google translate-api via REST
-        ## 'auto' needs to be set to blank now
-        if fromLang == 'auto':
-            fromLangTemp = detectLang(start_text)
-            print '%s detected' % fromLangTemp
+    def text(self, text = None):
+        '''Get or set translation text, handling embedded directives such as '/' and '.' '''
+        if text is None: return self._text
+        if text == '':
+            self._text = u''
+            return
+        RETURN_CODE = False
+        if text in ('.exit', '.quit', '.quitter', 'exit()'): RETURN_CODE = 'EXIT'
+        ## Use the '/' character to reverse translation direction.
+        elif text[0] == '/' or text[-1] == '/':
+            self.swapLang()
+            try:
+                # Cut off the '/' character if necessary
+                if text[-1] == '/': text = text[:-1]
+                elif text[0] == '/': text = text[1:]
+            except:
+                pass
+            self._text = text
+            RETURN_CODE = 'SWAP'
+        elif text in ('?', 'help', '-h', '-help', '--help'):
+            RETURN_CODE = 'HELP'
+        ## Use '|' character to change translation language(s).
+        elif text.find('|') + 1:
+            self.fromLang(text[0:text.find('|')])
+            self.toLang(text[text.find('|') + 1:])
+            RETURN_CODE = 'CHANGE'
         else:
-            fromLangTemp = fromLang
-        urldata = urllib.urlencode({'v': 1.0,
-                                    'q': start_text,
-                                    'langpair' : '%s|%s' % (fromLangTemp, toLang)
-                                   })
-        response = urllib2.urlopen(urllib2.Request('http://ajax.googleapis.com/ajax/services/language/translate?%s' % (urldata), None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read()
-        translated_text = unquotehtml(json.loads(response)['responseData']['translatedText'])
-            
-        if unicodeflag: translated_text = translated_text.encode("utf-8")
-    ##  If translated_text is empty (no translation found) handle exception.
-    except (TypeError, AttributeError, urllib2.HTTPError):
-        translated_text = "Unable to translate text."
+            self._text = text
+        return (self._text, RETURN_CODE)
 
-    except UnicodeDecodeError:
-        print "Error: UTF-8 decoding error. Unable to print some special characters."
-        unicodeflag = False
-    return translated_text
+    def detect_lang(self):
+        '''Return the guessed two letter code corresponding to translation text'''
+        urldata = urllib.urlencode({'v': 1.0, 'q': self._text})
+        response = urllib2.urlopen(urllib2.Request('http://ajax.googleapis.com/ajax/services/language/detect?%s' % urldata, None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read()
+        return json.loads(response)['responseData']['language']
+
+    def translate(self):
+        '''Return translated text from fromLang to toLang.'''
+        if self._text == '':
+            self.result = ''
+        else:
+            try:
+                ## Use the official google translate-api via REST
+                ## 'auto' needs to be set to blank now
+                if self._fromLang == 'auto':
+                    fromLangTemp = ''
+                else:
+                    fromLangTemp = self._fromLang
+                urldata = urllib.urlencode({'v': 1.0,
+                                            'q': self._text,
+                                            'langpair' : '%s|%s' % (fromLangTemp, self._toLang)
+                                           })
+                url = 'http://ajax.googleapis.com/ajax/services/language/translate?%s' % (urldata)
+                headers = {'User-Agent':'Traduisons/%s' % msg_VERSION}
+                response = urllib2.urlopen(urllib2.Request(url, None, headers)).read()
+                self.result = self._unquotehtml(json.loads(response)['responseData']['translatedText'])
+            ##  If translated_text is empty (no translation found) handle exception.
+            except TypeError, e:
+                self._error = ('No translation available', e)
+                return False
+            ##  Not sure about this, some kind of error when the net is unavailable perhaps?
+            except urllib2.HTTPError, e:
+                self._error = ('urllib2.HTTPError', e)
+                return False
+            ## If the url ever changes...
+            except urllib2.URLError, e:
+                self._error = (e.reason, e)
+                return False
+        return True
+
+    def _unquotehtml(self, s):
+        '''Convert a HTML quoted string into unicode object.
+        Works with &#XX; and with &nbsp; &gt; etc.'''
+        def convertentity(m):
+            if m.group(1)=='#':
+                try:
+                    return chr(int(m.group(2)))
+                except XValueError:
+                    return '&#%s;' % m.group(2)
+            try:
+                return htmlentitydefs.entitydefs[m.group(2)]
+            except KeyError:
+                return ('&%s;' % m.group(2)).decode('ISO-8859-1')
+        return re.sub(r'&(#)?([^;]+);',convertentity,s)
+
+## ------*------ End TRANSLATOR ------*------
+
 
 
 ## -----v----- BEGIN GUI -----v-----
-class TranslateWindow:
-    """Gui frontend to translate function."""
+class TranslateWindow(translator):
+    '''Gui frontend to translate function.'''
     ## If gtk or pygtk fails to import, warn user and run at cli.
     try:
         import gtk; global gtk
-        global clipboard; clipboard = gtk.clipboard_get()
     except ImportError:
         print """  Import module GTK: FAIL"""
         guiflagfail = False
@@ -254,6 +308,10 @@ class TranslateWindow:
         guiflagfail = False
         print """  Import module pyGTK: FAIL"""
     try:
+        import pango
+    except ImportError:
+        print """  Import modules pango: FAIL"""
+    try:
         guiflagfail
         print """
         Install modules or try:
@@ -263,40 +321,40 @@ class TranslateWindow:
     except NameError:
         pass
 
-    def __init__(self, fromLang, toLang, dictLang):
+    def __init__(self, fromLang = 'auto', toLang = 'en'):
 		## localize variables
-        self.fromLang, self.toLang, self.dictLang = fromLang, toLang, dictLang
+        translator.__init__(self, fromLang, toLang)
 
         ## making help tip string
         msg_LANGTIP  = "Language : symbol\n"
-        for item in sorted(dictLang.keys()):
-            msg_LANGTIP += '\n' + item + ' : ' + dictLang.get(item)
+        for item in sorted(self.dictLang.keys()):
+            msg_LANGTIP += '\n' + item + ' : ' + self.dictLang.get(item)
 
         ## Generate tooltips
         self.tooltips = gtk.Tooltips()
 
-        ## create a new window
-        self.inputwindow = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        self.inputwindow.set_size_request(250, 95)
-        self.inputwindow.set_title("Traduisons!")
+        ## Set window properties
+        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        self.window.set_size_request(250, 95)
+        self.window.set_title("Traduisons!")
 
         ## Try to load tooltip or skip
         try:
-            self.inputwindow.set_icon_from_file(os.path.join(appPath, "traduisons_icon.ico"))
+            self.window.set_icon_from_file(os.path.join(appPath, "traduisons_icon.ico"))
         except Exception, e:
             pass
             #print e.message
             #sys.exit(1)
-        self.inputwindow.connect("delete_event", lambda w, e: gtk.main_quit())
+        self.window.connect("delete_event", lambda w, e: gtk.main_quit())
 
         ## Keyboard Accelerators
         self.AccelGroup = gtk.AccelGroup()
         self.AccelGroup.connect_group(ord('Q'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: gtk.main_quit())
-        self.AccelGroup.connect_group(ord('N'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: clearBuffer(self))
-        self.inputwindow.add_accel_group(self.AccelGroup)
+        self.AccelGroup.connect_group(ord('N'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: self.result_buffer.set_text(''))
+        self.window.add_accel_group(self.AccelGroup)
 
         self.vbox1 = gtk.VBox(False, 0)
-        self.inputwindow.add(self.vbox1)
+        self.window.add(self.vbox1)
 
 ##  ----v---- Upper half of window ----v----
         self.hbox1 = gtk.HBox(False, 0)
@@ -304,7 +362,7 @@ class TranslateWindow:
 
         ## language label
         self.langbox = gtk.Label()
-        self.langbox.set_markup('' + self.fromLang + ' | ' + self.toLang + ':  ')
+        self.langbox.set_markup('' + str(self.fromLang()) + ' | ' + str(self.toLang()) + ':  ')
         self.hbox1.pack_start(self.langbox, False, False, 1)
         self.tooltips.set_tip(self.langbox, msg_LANGTIP)
 
@@ -359,58 +417,110 @@ class TranslateWindow:
 
 ##  ----^---- Lower Half of window ----^----
 
-        self.inputwindow.show_all()
+        self.window.show_all()
 
 ## ------*------ START CALLBACKS ------*------
 
     def enter_callback(self, widget, data = None):
-        """Submit entrybox text for translation."""
+        '''Submit entrybox text for translation.'''
 
-        ##  Sends EVERYTHING to changelang which then handles it
-        ##  Ideally, ? should print list of languages, / should switch to and from
-        entry_set_text, self.fromLang, self.toLang, SendFlag = changelang(self.entry.get_text(), self.fromLang, self.toLang, self)
-        self.langbox.set_markup('' + self.fromLang + ' | ' + self.toLang + ':  ')
-        self.entry.set_text(entry_set_text)
+        if self.entry.get_text() in ('.clear', 'clear()'):
+            self.resultbuffer1.set_text('')
+            self.entry.set_text('')
+            return
+        result = self.text(self.entry.get_text())
+
+        if 'HELP' in result:
+            ViewObj.resultbuffer1.insert(ViewObj.resultbuffer1.get_end_iter(), '\nPlease visit:\nhttp://code.google.com/p/traduisons/wiki')
+            ViewObj.result1.scroll_mark_onscreen(ViewObj.resultbuffer1.get_mark('end'))
+            self.entry.set_text('')
+            return
+        elif 'SWAP' in result or 'CHANGE' in result:
+            self.langbox.set_markup('' + self.fromLang() + ' | ' + self.toLang() + ':  ')
+            if 'SWAP' in result:
+                self.entry.set_text(self.text())
+            elif 'CHANGE' in result:
+                self.entry.set_text('')
+                return
+        elif 'EXIT' in result: gtk.main_quit()
+
         self.entry.select_region(0, -1)
-        if SendFlag:
-            if self.resultbuffer1.get_text(self.resultbuffer1.get_start_iter(), self.resultbuffer1.get_end_iter()) != '':
-                self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '\n')
-            # Sending out text for translation
-            self.statusBar1.set_text('translating...')
-            translation = translate(self.entry.get_text(), self.fromLang, self.toLang)
-            ##  Paste to clipboard
-            clipboard.set_text(translation)
-            clipboard.store()
-            self.statusBar1.set_text('')
-            # Setting marks to apply fromLang and toLang tags
-            if self.fromLang == 'auto':
-                fromLangTemp = detectLang(self.entry.get_text())
-            else:
-                fromLangTemp = self.fromLang
-            self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '%s:' % fromLangTemp)
-            front = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
-            front.backward_word_start()
-            back = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
-            self.resultbuffer1.apply_tag_by_name('fromLang', front, back)
-            self.result1.scroll_mark_onscreen(self.resultbuffer1.get_mark('end'))
-            self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), ' %s\n  %s:' % (self.entry.get_text(), self.toLang))
-            front = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
-            front.backward_word_start()
-            back = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
-            self.resultbuffer1.apply_tag_by_name('toLang', front, back)
-            self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), ' %s' % (translation))
-            self.result1.scroll_mark_onscreen(self.resultbuffer1.get_mark('end'))
-            print "%s: %s\n  %s: %s" % (self.fromLang, self.entry.get_text(), self.toLang, translation)
+
+        ## If it's not blank, stick a newline on the end.
+        if self.resultbuffer1.get_text(self.resultbuffer1.get_start_iter(), self.resultbuffer1.get_end_iter()) != '':
+            self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '\n')
+
+        # Sending out text for translation
+        self.statusBar1.set_text('translating...')
+        fromLangTemp = self.fromLang()
+        if self.fromLang() == 'auto':
+            fromLangTemp = self.detect_lang()
+        if not self.translate():
+            print repr(self._error)
+            raise self._error[1]
+        translation = self.result
+        self.statusBar1.set_text('')
+        if translation == '': return
+
+        # Setting marks to apply fromLang and toLang tags
+        self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '%s:' % fromLangTemp)
+        front = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
+        front.backward_word_start()
+        back = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
+        self.resultbuffer1.apply_tag_by_name('fromLang', front, back)
+        self.result1.scroll_mark_onscreen(self.resultbuffer1.get_mark('end'))
+        self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), ' %s\n  %s:' % (self.entry.get_text(), self.toLang()))
+        front = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
+        front.backward_word_start()
+        back = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
+        self.resultbuffer1.apply_tag_by_name('toLang', front, back)
+        self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), ' %s' % (translation))
+        self.result1.scroll_mark_onscreen(self.resultbuffer1.get_mark('end'))
+        print "%s: %s\n  %s: %s" % (fromLangTemp, self.entry.get_text(), self.toLang(), translation)
+
+        ## Copy to clipboard
+        ## Commenting this out due to overwhelming lag when running a clipboard manager
+        #c = clipboard()
+        try:
+            self.clipboard
+        except AttributeError:
+            self.clipboard = gtk.clipboard_get()
+        self.clipboard.set_text(translation)
+        self.clipboard.store()
 
 ## ------*------ End CALLBACKS ------*------
 ## ------*------ End CLASS ------*------
 ## ------*------ END GUI ------*------
 
+def clipboard_get():
+    '''Return a gtk.Clipboard object or False if gtk in unavailable'''
+    try:
+        import gtk
+        class clipboard(gtk.Clipboard):
+            def __init__(self, text = None):
+                gtk.Clipboard.__init__(self)
+
+            def set_text(self, text, len=-1):
+                targets = [ ("STRING", 0, 0),
+                            ("TEXT", 0, 1),
+                            ("COMPOUND_TEXT", 0, 2),
+                            ("UTF8_STRING", 0, 3) ]
+                def text_get_func(clipboard, selectiondata, info, data):
+                    selectiondata.set_text(data)
+                    return
+                def text_clear_func(clipboard, data):
+                    del data
+                    return
+                self.set_with_data(targets, text_get_func, text_clear_func, text)
+                return
+## ------*------ End CLASS ------*------
+        return clipboard()
+    except ImportError:
+        return False
+## ------*------ End CLIPBOARD ------*------
 
 def main():
-    global guiflag; guiflag = True
-    global unicodeflag; unicodeflag = True
-    global fromLang, toLang
+    guiflag = True
     for arg in sys.argv[1:]:
         if arg in ('--help', '-h'):
             print msg_USAGE, "\n", msg_HELP
@@ -418,14 +528,7 @@ def main():
         elif arg in ('--no-gui', '-n'):
             guiflag = False
         elif arg in ("--version", "-v"):
-            print """Traduisons! %s
-http://traduisons.googlecode.com
-
-Copyright (C) 2009 John E Tyree <johntyree@gmail.com>
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-""" % msg_VERSION
+            print msg_LICENSE
             sys.exit()
         else:
             print msg_USAGE, "\n", msg_BUGS
@@ -434,17 +537,28 @@ There is NO WARRANTY, to the extent permitted by law.
 
     ## Start traduisons!
     if guiflag:
-        TranslateWindow(fromLang, toLang, dictLang)
+        TranslateWindow()
         gtk.main()
     else:
         print "\npowered by Google ..."
+        t = translator()
         while True:
-            stringLang = fromLang + "|" + toLang + ": "
-            start_text = ''
-            while start_text == '':
-                start_text = raw_input(stringLang)
-            start_text, fromLang, toLang, SendFlag = changelang(start_text, fromLang, toLang)
-            if SendFlag: print translate(start_text, fromLang, toLang)
+            t.text('')
+            while t.text() == '':
+                stringLang = t.fromLang() + "|" + t.toLang() + ": "
+                try:
+                    t.text(raw_input(stringLang))
+                except EOFError:
+                    sys.exit()
+            if t.translate():
+                if t.fromLang() == 'auto':
+                    l = t.detect_lang()
+                    for k, v in t.dictLang.items():
+                        if v == l:
+                            print k, '-', v
+                print t.result
+            else:
+                raise t.result[1]
 
 
 if __name__ == '__main__': main()
