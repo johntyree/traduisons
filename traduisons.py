@@ -70,7 +70,6 @@ start_text = ""
 fromLang = "auto"
 toLang = "en"
 
-## -----v----- BEGIN TRANSLATOR -----v-----
 class translator:
     dictLang = {'Detect Language' : 'auto',
                 'Afrikaans' : 'af',
@@ -282,7 +281,10 @@ class translator:
             except KeyError:
                 return ('&%s;' % m.group(2)).decode('ISO-8859-1')
         return re.sub(r'&(#)?([^;]+);',convertentity,s)
+
 ## ------*------ End TRANSLATOR ------*------
+
+
 
 ## -----v----- BEGIN GUI -----v-----
 class TranslateWindow(translator):
@@ -420,9 +422,7 @@ class TranslateWindow(translator):
             self.resultbuffer1.set_text('')
             self.entry.set_text('')
             return
-
         result = self.text(self.entry.get_text())
-        print repr(result)
 
         if 'HELP' in result:
             ViewObj.resultbuffer1.insert(ViewObj.resultbuffer1.get_end_iter(), '\nPlease visit:\nhttp://code.google.com/p/traduisons/wiki')
@@ -475,34 +475,42 @@ class TranslateWindow(translator):
         ## Copy to clipboard
         ## Commenting this out due to overwhelming lag when running a clipboard manager
         #c = clipboard()
-        c = gtk.clipboard_get()
-        c.set_text(translation)
-        c.store()
-
-
+        try:
+            self.clipboard
+        except AttributeError:
+            self.clipboard = gtk.clipboard_get()
+        self.clipboard.set_text(translation)
+        self.clipboard.store()
 
 ## ------*------ End CALLBACKS ------*------
 ## ------*------ End CLASS ------*------
 ## ------*------ END GUI ------*------
 
-class clipboard(gtk.Clipboard):
-    def __init__(self, text = None):
-        gtk.Clipboard.__init__(self)
+def clipboard_get():
+    try:
+        import gtk
+        class clipboard(gtk.Clipboard):
+            def __init__(self, text = None):
+                gtk.Clipboard.__init__(self)
 
-    def my_set_text(self, text, len=-1):
-        targets = [ ("STRING", 0, 0),
-                    ("TEXT", 0, 1),
-                    ("COMPOUND_TEXT", 0, 2),
-                    ("UTF8_STRING", 0, 3) ]
-        def text_get_func(clipboard, selectiondata, info, data):
-            selectiondata.set_text(data)
-            return
-        def text_clear_func(clipboard, data):
-            del data
-            return
-        self.set_with_data(targets, text_get_func, text_clear_func, text)
-        return
-
+            def set_text(self, text, len=-1):
+                targets = [ ("STRING", 0, 0),
+                            ("TEXT", 0, 1),
+                            ("COMPOUND_TEXT", 0, 2),
+                            ("UTF8_STRING", 0, 3) ]
+                def text_get_func(clipboard, selectiondata, info, data):
+                    selectiondata.set_text(data)
+                    return
+                def text_clear_func(clipboard, data):
+                    del data
+                    return
+                self.set_with_data(targets, text_get_func, text_clear_func, text)
+                return
+## ------*------ End CLASS ------*------
+        return clipboard()
+    except ImportError:
+        return False
+## ------*------ End CLIPBOARD ------*------
 
 def main():
     guiflag = True
