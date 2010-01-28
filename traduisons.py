@@ -10,7 +10,7 @@
     Works with proper language selected.
 """
 """
-    Copyright 2009 John E Tyree <johntyree@gmail.com>
+    Copyright 2010 John E Tyree <johntyree@gmail.com>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -72,8 +72,8 @@ class translator:
                 'Catalan' : 'ca',
                 'Chinese' : 'zh-CN',
                 'Chinese (Simplified)' : 'zh-CN',
-                'Chinese (traditional)' : 'zh-TW',
-                'Croation' : 'hr',
+                'Chinese (Traditional)' : 'zh-TW',
+                'Croatian' : 'hr',
                 'Czech' : 'cs',
                 'Danish' : 'da',
                 'Dutch' : 'nl',
@@ -124,6 +124,28 @@ class translator:
         if not self.fromLang(fromLang): self.fromLang('auto')
         if not self.toLang(toLang): self.toLang('en')
         self._text = start_text
+        x = self.dictLang
+        self.update_languages()
+        for k in x:
+            if not self.dictLang.has_key(k): print k, ': Unavailable'
+
+    def update_languages(self):
+        restr = '<meta name="description" content="Google&#39;s free online language translation service instantly translates text and web pages. This translator supports: (.*?)">'
+        resp = urllib2.urlopen(urllib2.Request('http://translate.google.com', None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read()
+        m = re.search(restr, resp)
+        d = {}
+        if m:
+            names = m.group(1).split(', ')
+            for name in names:
+                n = re.search('<option  value="([^"]+)">%s</option>' % name, resp)
+                if n:
+                    d[name] = n.group(1)
+                else:
+                    return False
+            for k, v in [('Detect Language', 'auto'), ('Gaelic', 'el'), ('Chinese (Traditional)', 'zh-TW'), ('Chinese (Simplified)', 'zh-CN')]:
+                d[k] = v
+            self.dictLang = d
+        return False
 
     def languages(self):
         l = []
@@ -259,7 +281,6 @@ class TranslateWindow(translator):
     ## If gtk or pygtk fails to import, warn user and run at cli.
     try:
         import gtk; global gtk
-        global clipboard; clipboard = gtk.clipboard_get()
     except ImportError:
         print """  Import module GTK: FAIL"""
         guiflagfail = False
@@ -444,13 +465,35 @@ class TranslateWindow(translator):
 
         ## Copy to clipboard
         ## Commenting this out due to overwhelming lag when running a clipboard manager
-        #clipboard.set_text(translation)
-        #clipboard.store()
+        #c = clipboard()
+        c = gtk.clipboard_get()
+        c.set_text(translation)
+        c.store()
+
 
 
 ## ------*------ End CALLBACKS ------*------
 ## ------*------ End CLASS ------*------
 ## ------*------ END GUI ------*------
+
+class clipboard(gtk.Clipboard):
+    def __init__(self, text = None):
+        gtk.Clipboard.__init__(self)
+
+    def my_set_text(self, text, len=-1):
+        targets = [ ("STRING", 0, 0),
+                    ("TEXT", 0, 1),
+                    ("COMPOUND_TEXT", 0, 2),
+                    ("UTF8_STRING", 0, 3) ]
+        def text_get_func(clipboard, selectiondata, info, data):
+            selectiondata.set_text(data)
+            return
+        def text_clear_func(clipboard, data):
+            del data
+            return
+        self.set_with_data(targets, text_get_func, text_clear_func, text)
+        return
+
 
 def main():
     guiflag = True

@@ -128,6 +128,12 @@ class translator:
             return False
         return True
 
+    def detect_lang(self):
+        '''Return the guessed two letter code corresponding to self._text'''
+        urldata = urllib.urlencode({'v': 1.0, 'q': self._text})
+        response = urllib2.urlopen(urllib2.Request('http://ajax.googleapis.com/ajax/services/language/detect?%s' % urldata, None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read()
+        return json.loads(response)['responseData']['language']
+
     def raw_text(self, t = None):
         if t is not None:
             t = unicode(t)
@@ -163,12 +169,6 @@ class translator:
         else:
             self._text = text
         return (self._text, RETURN_CODE)
-
-    def detect_lang(self):
-        '''Return the guessed two letter code corresponding to text'''
-        urldata = urllib.urlencode({'v': 1.0, 'q': self._text})
-        response = urllib2.urlopen(urllib2.Request('http://ajax.googleapis.com/ajax/services/language/detect?%s' % urldata, None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read()
-        return json.loads(response)['responseData']['language']
 
     def translate(self):
         """Return translated text from fromLang to toLang."""
