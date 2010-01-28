@@ -215,7 +215,7 @@ def translate(start_text, fromLang, toLang):
         ## Use the official google translate-api via REST
         ## 'auto' needs to be set to blank now
         if fromLang == 'auto':
-            fromLangTemp = detectLang(start_text) 
+            fromLangTemp = detectLang(start_text)
             print '%s detected' % fromLangTemp
         else:
             fromLangTemp = fromLang
