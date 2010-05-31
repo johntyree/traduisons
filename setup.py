@@ -14,11 +14,13 @@ class Py2exeCommand(build_exe.py2exe):
                 'cairo', 'pango', 'pangocairo', 'atk'])
         return d
 
-
 core.setup(
     name = "Traduisons!",
-    description = "A front-end to Google Translate.",
-    version = msg_VERSION,
+    description = "A front-end to Google Translate",
+    version = str(msg_VERSION),
+    author = 'John Tyree',
+    author_email = 'johntyree@gmail.com',
+    url = 'http://traduisons.googlecode.com',
     windows = [
         {"script": "traduisons.py",
         "icon_resources": [(1, "traduisons_icon.ico")]
