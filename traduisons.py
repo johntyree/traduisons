@@ -28,7 +28,8 @@
     MA 02110-1301, USA.
 """
 
-import urllib2, urllib, string, htmlentitydefs, re, sys, os
+import urllib2, urllib, string, htmlentitydefs, re, sys, os, threading
+from distutils import version
 
 # In python <= 2.5, standard 'json' is not included 
 try:
@@ -36,7 +37,7 @@ try:
 except(ImportError):
     import simplejson as json
 
-msg_VERSION = "0.4.0"
+msg_VERSION = version.StrictVersion('0.4.0')
 msg_LICENSE = """Traduisons! %s
 http://traduisons.googlecode.com
 
@@ -70,7 +71,63 @@ start_text = ""
 fromLang = "auto"
 toLang = "en"
 
+def backgroundThread(f):
+    echo = False
+    if echo: print "backgroundThread definition start"
+    def newfunc(*args, **kwargs):
+        if echo: print "newfunc definition start"
+        class bgThread(threading.Thread):
+            def __init__(self, f, *args, **kwargs):
+                if echo: print "bgThread Init Start"
+                self.f = f
+                threading.Thread.__init__(self)
+                if echo: print "bgThread Init End"
+                return
+            def __call__(self, *args, **kwargs):
+                if echo: print "__call__ start"
+                resp = self.start()
+                if echo: print "__call__ end"
+                return resp
+            def run(self):
+                if echo: print "Thead start"
+                result = self.f(*args, **kwargs)
+                if echo: print "Thead end"
+                if echo: print "newfunc definition end"
+        #return bgThread(target = f, args = args, kwargs = kwargs).start()
+        return bgThread(f).start()
+    if echo: print "backgroundThread definition end"
+    return newfunc
+
+def clipboard_get():
+    '''Return a gtk.Clipboard object or False if gtk in unavailable'''
+    try:
+        import gtk
+        class clipboard(gtk.Clipboard):
+            def __init__(self, text = None):
+                gtk.Clipboard.__init__(self)
+
+            def set_text(self, text, len=-1):
+                targets = [ ("STRING", 0, 0),
+                            ("TEXT", 0, 1),
+                            ("COMPOUND_TEXT", 0, 2),
+                            ("UTF8_STRING", 0, 3) ]
+                def text_get_func(clipboard, selectiondata, info, data):
+                    selectiondata.set_text(data)
+                    return
+                def text_clear_func(clipboard, data):
+                    del data
+                    return
+                self.set_with_data(targets, text_get_func, text_clear_func, text)
+                return
+## ------*------ End CLASS ------*------
+        return clipboard()
+    except ImportError:
+        return False
+## ------*------ End CLIPBOARD ------*------
+
 class translator:
+    '''Abstraction of the Google Translate RESTful API'''
+
     dictLang = {'Detect Language' : 'auto',
                 'Afrikaans' : 'af',
                 'Albanian' : 'sq',
@@ -132,10 +189,13 @@ class translator:
         if not self.fromLang(fromLang): self.fromLang('auto')
         if not self.toLang(toLang): self.toLang('en')
         self._text = start_text
-        x = self.dictLang
-        self.update_languages()
-        for k in x:
-            if not self.dictLang.has_key(k): print k, ': Unavailable'
+
+    def is_latest(self):
+        try:
+            self.msg_LATEST
+        except AttributeError:
+            self.msg_LATEST = version.StrictVersion(urllib2.urlopen('http://traduisons.googlecode.com/svn-history/r93/trunk/LATEST-IS').read().strip())
+        return msg_VERSION >= self.msg_LATEST
 
     def update_languages(self):
         '''Naively try to determine if new languages are available by scraping http://translate.google.com'''
@@ -153,13 +213,19 @@ class translator:
                     return False
             for k, v in [('Detect Language', 'auto'), ('Gaelic', 'el'), ('Chinese (Traditional)', 'zh-TW'), ('Chinese (Simplified)', 'zh-CN')]:
                 d[k] = v
+            for k in self.dictLang:
+                if not d.has_key(k): print k, ': Unavailable'
             self.dictLang = d
+        else:
+            print 'Unable to update_languages'
         return False
 
-    def languages(self):
+    def pretty_print_languages(self, right_justify = True):
         '''Return a string of pretty-printed, newline-delimited languages in the format Name : code'''
         l = []
-        width = max([len(x) for x in self.dictLang.keys()])
+        width = 0
+        if right_justify:
+            width = max([len(x) for x in self.dictLang.keys()])
         for item in sorted(self.dictLang.keys()):
             l.append(("%" + str(width) + 's' + ' : %s') % (item, self.dictLang[item]))
         return '\n'.join(l)
@@ -297,7 +363,8 @@ class TranslateWindow(translator):
     '''Gui frontend to translate function.'''
     ## If gtk or pygtk fails to import, warn user and run at cli.
     try:
-        import gtk; global gtk
+        import gtk, gobject; global gtk; global gobject
+        gtk.gdk.threads_init()
     except ImportError:
         print """  Import module GTK: FAIL"""
         guiflagfail = False
@@ -325,31 +392,28 @@ class TranslateWindow(translator):
 		## localize variables
         translator.__init__(self, fromLang, toLang)
 
-        ## making help tip string
-        msg_LANGTIP  = "Language : symbol\n"
-        for item in sorted(self.dictLang.keys()):
-            msg_LANGTIP += '\n' + item + ' : ' + self.dictLang.get(item)
-
-        ## Generate tooltips
-        self.tooltips = gtk.Tooltips()
+        ## Generate user messages
+        self.msg_LANGTIP  = self.pretty_print_languages(0)
+        self.msg_MODAL = ''
 
         ## Set window properties
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_size_request(250, 95)
         self.window.set_title("Traduisons!")
 
-        ## Try to load tooltip or skip
+        ## Try to load icon or skip
         try:
             self.window.set_icon_from_file(os.path.join(appPath, "traduisons_icon.ico"))
         except Exception, e:
             pass
             #print e.message
             #sys.exit(1)
-        self.window.connect("delete_event", lambda w, e: gtk.main_quit())
+        self.window.connect("delete_event", lambda w, e: sys.exit())
 
         ## Keyboard Accelerators
         self.AccelGroup = gtk.AccelGroup()
-        self.AccelGroup.connect_group(ord('Q'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: gtk.main_quit())
+        #self.AccelGroup.connect_group(ord('Q'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: gtk.main_quit())
+        self.AccelGroup.connect_group(ord('Q'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: sys.exit())
         self.AccelGroup.connect_group(ord('N'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: self.result_buffer.set_text(''))
         self.window.add_accel_group(self.AccelGroup)
 
@@ -364,13 +428,13 @@ class TranslateWindow(translator):
         self.langbox = gtk.Label()
         self.langbox.set_markup('' + str(self.fromLang()) + ' | ' + str(self.toLang()) + ':  ')
         self.hbox1.pack_start(self.langbox, False, False, 1)
-        self.tooltips.set_tip(self.langbox, msg_LANGTIP)
+        self.langbox.set_tooltip_text(self.msg_LANGTIP)
 
         ## Entry box
         self.entry = gtk.Entry()
         self.entry.set_max_length(0)
         self.entry.connect('activate', self.enter_callback)
-        self.tooltips.set_tip(self.entry, msg_HELP)
+        self.entry.set_tooltip_text(msg_HELP)
         self.hbox1.pack_start(self.entry, True, True, 1)
 ##  ----^---- Upper half of window ----^----
 
@@ -418,8 +482,27 @@ class TranslateWindow(translator):
 ##  ----^---- Lower Half of window ----^----
 
         self.window.show_all()
+        self.check_for_update()
 
 ## ------*------ START CALLBACKS ------*------
+
+    @backgroundThread
+    def check_for_update(self):
+        '''Update language list. Check the server for a new version of Traduisons and notify the user.'''
+        self.update_languages()
+        self.msg_LANGTIP = self.pretty_print_languages(0)
+        gobject.idle_add(self.langbox.set_tooltip_text, self.msg_LANGTIP)
+        if not self.is_latest():
+            self.msg_MODAL = 'Update Available!'
+            print self.msg_MODAL
+            gobject.idle_add(self.statusBar1.set_text, self.msg_MODAL)
+            gobject.idle_add(self.statusBar1.set_tooltip_text, 'Get Traduisons! %s\n%s' % (self.msg_LATEST, 'http://code.google.com/p/traduisons/downloads/list'))
+        return
+
+    def modal_message(self, msg = None):
+        if msg is None:
+            msg = self.msg_MODAL
+        gobject.idle_add(self.statusBar1.set_text, msg)
 
     def enter_callback(self, widget, data = None):
         '''Submit entrybox text for translation.'''
@@ -429,6 +512,8 @@ class TranslateWindow(translator):
             self.entry.set_text('')
             return
         result = self.text(self.entry.get_text())
+        if result is None:
+            return
 
         if 'HELP' in result:
             ViewObj.resultbuffer1.insert(ViewObj.resultbuffer1.get_end_iter(), '\nPlease visit:\nhttp://code.google.com/p/traduisons/wiki')
@@ -442,8 +527,11 @@ class TranslateWindow(translator):
             elif 'CHANGE' in result:
                 self.entry.set_text('')
                 return
-        elif 'EXIT' in result: gtk.main_quit()
+        elif 'EXIT' in result:
+            gtk.main_quit()
+            return
 
+        self.modal_message('translating...')
         self.entry.select_region(0, -1)
 
         ## If it's not blank, stick a newline on the end.
@@ -451,7 +539,6 @@ class TranslateWindow(translator):
             self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '\n')
 
         # Sending out text for translation
-        self.statusBar1.set_text('translating...')
         fromLangTemp = self.fromLang()
         if self.fromLang() == 'auto':
             fromLangTemp = self.detect_lang()
@@ -459,7 +546,7 @@ class TranslateWindow(translator):
             print repr(self._error)
             raise self._error[1]
         translation = self.result
-        self.statusBar1.set_text('')
+        self.modal_message()
         if translation == '': return
 
         # Setting marks to apply fromLang and toLang tags
@@ -484,7 +571,7 @@ class TranslateWindow(translator):
         try:
             self.clipboard
         except AttributeError:
-            self.clipboard = gtk.clipboard_get()
+            self.clipboard = clipboard_get()
         self.clipboard.set_text(translation)
         self.clipboard.store()
 
@@ -492,42 +579,16 @@ class TranslateWindow(translator):
 ## ------*------ End CLASS ------*------
 ## ------*------ END GUI ------*------
 
-def clipboard_get():
-    '''Return a gtk.Clipboard object or False if gtk in unavailable'''
-    try:
-        import gtk
-        class clipboard(gtk.Clipboard):
-            def __init__(self, text = None):
-                gtk.Clipboard.__init__(self)
-
-            def set_text(self, text, len=-1):
-                targets = [ ("STRING", 0, 0),
-                            ("TEXT", 0, 1),
-                            ("COMPOUND_TEXT", 0, 2),
-                            ("UTF8_STRING", 0, 3) ]
-                def text_get_func(clipboard, selectiondata, info, data):
-                    selectiondata.set_text(data)
-                    return
-                def text_clear_func(clipboard, data):
-                    del data
-                    return
-                self.set_with_data(targets, text_get_func, text_clear_func, text)
-                return
-## ------*------ End CLASS ------*------
-        return clipboard()
-    except ImportError:
-        return False
-## ------*------ End CLIPBOARD ------*------
 
 def main():
     guiflag = True
     for arg in sys.argv[1:]:
-        if arg in ('--help', '-h'):
+        if arg in ('--help', '-h', "/?"):
             print msg_USAGE, "\n", msg_HELP
             sys.exit()
-        elif arg in ('--no-gui', '-n'):
+        elif arg in ('--no-gui', '-n', "/n"):
             guiflag = False
-        elif arg in ("--version", "-v"):
+        elif arg in ("--version", "-v", "/v"):
             print msg_LICENSE
             sys.exit()
         else:
@@ -538,7 +599,9 @@ def main():
     ## Start traduisons!
     if guiflag:
         TranslateWindow()
+        #gtk.gdk.threads_enter()
         gtk.main()
+        #gtk.gdk.threads_leave()
     else:
         print "\npowered by Google ..."
         t = translator()
