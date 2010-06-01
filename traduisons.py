@@ -373,7 +373,7 @@ class TranslateWindow(translator):
     ## If gtk or pygtk fails to import, warn user and run at cli.
     try:
         import gtk, gobject; global gtk; global gobject
-        gtk.gdk.threads_init()
+        gobject.threads_init()
     except ImportError:
         print """  Import module GTK: FAIL"""
         guiflagfail = False
@@ -608,9 +608,7 @@ def main():
     ## Start traduisons!
     if guiflag:
         TranslateWindow()
-        #gtk.gdk.threads_enter()
         gtk.main()
-        #gtk.gdk.threads_leave()
     else:
         print "\npowered by Google ..."
         t = translator()
