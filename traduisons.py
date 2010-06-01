@@ -215,7 +215,7 @@ class translator:
         if m:
             names = m.group(1).split(', ')
             for name in names:
-                n = re.search('<option  value="([^"]+)">%s</option>' % name, resp)
+                n = re.search('<option  value="([^"]+)">%s[^<]*</option>' % name, resp)
                 if n:
                     d[name] = n.group(1)
                 else:
