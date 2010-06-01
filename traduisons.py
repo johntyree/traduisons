@@ -71,8 +71,16 @@ start_text = ""
 fromLang = "auto"
 toLang = "en"
 
+def echo(f):
+    def newfunc(*args, **kwargs):
+        print f.__name__, "BEGIN"
+        f(*args, **kwargs)
+        print f.__name__, "END"
+    return newfunc
+
+
 def backgroundThread(f):
-    echo = False
+    echo = True
     if echo: print "backgroundThread definition start"
     def newfunc(*args, **kwargs):
         if echo: print "newfunc definition start"
@@ -194,9 +202,10 @@ class translator:
         try:
             self.msg_LATEST
         except AttributeError:
-            self.msg_LATEST = version.StrictVersion(urllib2.urlopen('http://traduisons.googlecode.com/svn-history/r93/trunk/LATEST-IS').read().strip())
+            self.msg_LATEST = version.StrictVersion(urllib2.urlopen('http://traduisons.googlecode.com/svn/trunk/LATEST-IS').read().strip())
         return msg_VERSION >= self.msg_LATEST
 
+    @echo
     def update_languages(self):
         '''Naively try to determine if new languages are available by scraping http://translate.google.com'''
         restr = '<meta name="description" content="Google&#39;s free online language translation service instantly translates text and web pages. This translator supports: (.*?)">'
