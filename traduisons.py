@@ -78,9 +78,8 @@ def echo(f):
         print f.__name__, "END"
     return newfunc
 
-
 def backgroundThread(f):
-    echo = True
+    echo = False
     if echo: print "backgroundThread definition start"
     def newfunc(*args, **kwargs):
         if echo: print "newfunc definition start"
@@ -205,7 +204,6 @@ class translator:
             self.msg_LATEST = version.StrictVersion(urllib2.urlopen('http://traduisons.googlecode.com/svn/trunk/LATEST-IS').read().strip())
         return msg_VERSION >= self.msg_LATEST
 
-    @echo
     def update_languages(self):
         '''Naively try to determine if new languages are available by scraping http://translate.google.com'''
         restr = '<meta name="description" content="Google&#39;s free online language translation service instantly translates text and web pages. This translator supports: (.*?)">'
