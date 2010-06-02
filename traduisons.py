@@ -38,6 +38,7 @@ except(ImportError):
     import simplejson as json
 
 msg_VERSION = version.StrictVersion('0.4.0')
+msg_DOWNLOAD = 'http://code.google.com/p/traduisons/downloads/list'
 msg_LICENSE = """Traduisons! %s
 http://traduisons.googlecode.com
 
@@ -139,10 +140,12 @@ class translator:
                 'Afrikaans' : 'af',
                 'Albanian' : 'sq',
                 'Arabic' : 'ar',
+                'Armenian' : 'hy',
+                'Azerbaijani' : 'az',
+                'Basque' : 'eu',
                 'Belarusian' : 'be',
                 'Bulgarian' : 'bg',
                 'Catalan' : 'ca',
-                'Chinese' : 'zh-CN',
                 'Chinese (Simplified)' : 'zh-CN',
                 'Chinese (Traditional)' : 'zh-TW',
                 'Croatian' : 'hr',
@@ -154,16 +157,18 @@ class translator:
                 'Filipino' : 'tl',
                 'Finnish' : 'fi',
                 'French' : 'fr',
+                'Gaelic' : 'ga',
                 'Galician' : 'gl',
+                'Georgian' : 'ka',
                 'German' : 'de',
                 'Greek' : 'el',
+                'Haitian Creole' : 'ht',
                 'Hebrew' : 'iw',
                 'Hindi' : 'hi',
                 'Hungarian' : 'hu',
                 'Icelandic' : 'is',
                 'Indonesian' : 'id',
                 'Irish' : 'ga',
-                'Gaelic' : 'ga',
                 'Italian' : 'it',
                 'Japanese' : 'ja',
                 'Korean' : 'ko',
@@ -187,6 +192,7 @@ class translator:
                 'Thai' : 'th',
                 'Turkish' : 'tr',
                 'Ukrainian' : 'uk',
+                'Urdu' : 'ur',
                 'Vietnamese' : 'vi',
                 'Welsh' : 'cy',
                 'Yiddish' : 'yi',
@@ -218,7 +224,7 @@ class translator:
                     d[name] = n.group(1)
                 else:
                     return False
-            for k, v in [('Detect Language', 'auto'), ('Gaelic', 'el'), ('Chinese (Traditional)', 'zh-TW'), ('Chinese (Simplified)', 'zh-CN')]:
+            for k, v in [('Detect Language', 'auto'), ('Gaelic', 'ga'), ('Chinese (Traditional)', 'zh-TW'), ('Chinese (Simplified)', 'zh-CN')]:
                 d[k] = v
             for k in self.dictLang:
                 if not d.has_key(k): print k, ': Unavailable'
@@ -503,7 +509,7 @@ class TranslateWindow(translator):
             self.msg_MODAL = 'Update Available!'
             print self.msg_MODAL
             gobject.idle_add(self.statusBar1.set_text, self.msg_MODAL)
-            gobject.idle_add(self.statusBar1.set_tooltip_text, 'Get Traduisons! %s\n%s' % (self.msg_LATEST, 'http://code.google.com/p/traduisons/downloads/list'))
+            gobject.idle_add(self.statusBar1.set_tooltip_text, 'Get Traduisons! %s\n%s' % (self.msg_LATEST, msg_DOWNLOAD))
         return
 
     def modal_message(self, msg = None):
@@ -610,21 +616,32 @@ def main():
     else:
         print "\npowered by Google ..."
         t = translator()
+        if not t.is_latest():
+            print "Version %s now available! %s" % (t.msg_LATEST, msg_DOWNLOAD)
+        # This is blocking, who wants to wait around?
+        # t.update_languages()
         while True:
             t.text('')
             while t.text() == '':
                 stringLang = t.fromLang() + "|" + t.toLang() + ": "
                 try:
-                    t.text(raw_input(stringLang))
+                    result = t.text(raw_input(stringLang))
+                    if None == result:
+                       break
+                    elif 'HELP' == result[1]:
+                        print msg_HELP
+                        print t.pretty_print_languages()
                 except EOFError:
+                    print
                     sys.exit()
             if t.translate():
-                if t.fromLang() == 'auto':
-                    l = t.detect_lang()
-                    for k, v in t.dictLang.items():
-                        if v == l:
-                            print k, '-', v
-                print t.result
+                if t.result != '':
+                    if t.fromLang() == 'auto':
+                        l = t.detect_lang()
+                        for k, v in t.dictLang.items():
+                            if v == l:
+                                print k, '-', v
+                    print t.result
             else:
                 raise t.result[1]
 
