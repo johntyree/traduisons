@@ -16,9 +16,6 @@ OutFile "traduisons_installer.exe"
 ; The default installation directory
 InstallDir $PROGRAMFILES\Traduisons
 
-; Request application privileges for Windows Vista
-RequestExecutionLevel user
-
 ;--------------------------------
 
 ; Pages

@@ -499,6 +499,11 @@ class TranslateWindow(translator):
 
 ## ------*------ START CALLBACKS ------*------
 
+    def modal_message(self, msg = None):
+        if msg is None:
+            msg = self.msg_MODAL
+        gobject.idle_add(self.statusBar1.set_text, msg)
+
     @backgroundThread
     def check_for_update(self):
         '''Update language list. Check the server for a new version of Traduisons and notify the user.'''
@@ -508,14 +513,9 @@ class TranslateWindow(translator):
         if not self.is_latest():
             self.msg_MODAL = 'Update Available!'
             print self.msg_MODAL
-            gobject.idle_add(self.statusBar1.set_text, self.msg_MODAL)
+            self.modal_message(self.msg_MODAL)
             gobject.idle_add(self.statusBar1.set_tooltip_text, 'Get Traduisons! %s\n%s' % (self.msg_LATEST, msg_DOWNLOAD))
         return
-
-    def modal_message(self, msg = None):
-        if msg is None:
-            msg = self.msg_MODAL
-        gobject.idle_add(self.statusBar1.set_text, msg)
 
     def enter_callback(self, widget, data = None):
         '''Submit entrybox text for translation.'''
