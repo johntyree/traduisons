@@ -28,8 +28,7 @@ core.setup(
     ],
     options = {
         'py2exe': {
-            'packages': ['simplejson'],
-            'dll_excludes': ['msvcr71.dll'],
+            'includes': ['gio'],
         },
     },
 
