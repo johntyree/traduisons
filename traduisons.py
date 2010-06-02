@@ -240,7 +240,7 @@ class translator:
         if right_justify:
             width = max([len(x) for x in self.dictLang.keys()])
         for item in sorted(self.dictLang.keys()):
-            l.append(("%" + str(width) + 's' + ' : %s') % (item, self.dictLang[item]))
+            l.append(''.join(["%", str(width), 's', ' : %s']) % (item, self.dictLang[item]))
         return '\n'.join(l)
 
     def toLang(self, l = None):
@@ -529,8 +529,8 @@ class TranslateWindow(translator):
             return
 
         if 'HELP' in result:
-            ViewObj.resultbuffer1.insert(ViewObj.resultbuffer1.get_end_iter(), '\nPlease visit:\nhttp://code.google.com/p/traduisons/wiki')
-            ViewObj.result1.scroll_mark_onscreen(ViewObj.resultbuffer1.get_mark('end'))
+            self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '\nPlease visit:\nhttp://code.google.com/p/traduisons/wiki')
+            self.result1.scroll_mark_onscreen(self.resultbuffer1.get_mark('end'))
             self.entry.set_text('')
             return
         elif 'SWAP' in result or 'CHANGE' in result:
