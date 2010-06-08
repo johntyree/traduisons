@@ -146,6 +146,7 @@ class translator:
                 'Belarusian' : 'be',
                 'Bulgarian' : 'bg',
                 'Catalan' : 'ca',
+                'Chinese' : 'zh-CN',
                 'Chinese (Simplified)' : 'zh-CN',
                 'Chinese (Traditional)' : 'zh-TW',
                 'Croatian' : 'hr',
