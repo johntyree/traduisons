@@ -2,12 +2,9 @@
 from distutils import core
 
 # For side effects!
-try:
-    import py2exe
-    from py2exe import build_exe
-except:
-    pass
+import py2exe
 
+from py2exe import build_exe
 from traduisons import msg_VERSION
 
 class Py2exeCommand(build_exe.py2exe):
