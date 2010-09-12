@@ -205,6 +205,7 @@ class translator:
         self._text = start_text
 
     def is_latest(self):
+        '''Phone home to check if we are up to date.'''
         try:
             self.msg_LATEST
         except AttributeError:
@@ -213,17 +214,21 @@ class translator:
 
     def update_languages(self):
         '''Naively try to determine if new languages are available by scraping http://translate.google.com'''
-        restr = '<meta name="description" content="Google&#39;s free online language translation service instantly translates text and web pages. This translator supports: (.*?)">'
         resp = urllib2.urlopen(urllib2.Request('http://translate.google.com', None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read()
-        m = re.search(restr, resp)
+        # namelist_regex should match Capitalized list of languages names: "English, French, Klingon, Etc...."
+        namelist_regex = '<meta name=description content="Google&#39;s free online language translation service instantly translates text and web pages. This translator supports: (.*?)">'
+        m = re.search(namelist_regex, resp)
         d = {}
         if m:
             names = m.group(1).split(', ')
             for name in names:
-                n = re.search('<option  value="([^"]+)">%s[^<]*</option>' % name, resp)
+                # Match abbreviated language code to language name from m above
+                code_regex = '<option  value="([^"]+)">%s[^<]*</option>'
+                n = re.search(code_regex % name, resp)
                 if n:
                     d[name] = n.group(1)
                 else:
+                    # If no match found, just abort. Things are too messy
                     return False
             for k, v in [('Detect Language', 'auto'), ('Gaelic', 'ga'), ('Chinese (Traditional)', 'zh-TW'), ('Chinese (Simplified)', 'zh-CN')]:
                 d[k] = v
