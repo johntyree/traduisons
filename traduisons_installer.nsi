@@ -1,9 +1,5 @@
 ; traduisons_install.nsi
 ;
-; This script is perhaps one of the simplest NSIs you can make. All of the
-; optional settings are left to their default settings. The installer simply 
-; prompts the user asking them where to install, and drops a copy of example1.nsi
-; there. 
 
 ;--------------------------------
 
