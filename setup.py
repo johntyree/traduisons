@@ -8,16 +8,12 @@ core.setup(
     long_description = open('README').read(),
     version = str(msg_VERSION),
     author = 'John Tyree',
-    author_email = '',
+    author_email = 'test',
     url = 'http://traduisons.googlecode.com',
     license = "LICENSE",
     packages = ['traduisons'],
-    #scripts = ['bin/traduisons.py']
-    #package_data = [
-        #{ 'traduisons' : ['../lICENSE'] }
-    #],
-    data_files = [
-        ('', ["LICENSE"]),
-        #('', ["LICENSE", "google-small-logo.png", "traduisons_icon.png"]),
-    ],
+    #package_data = { 'traduisons' : ['data/traduisons_icon.ico', 'data/google-small-logo.png']}
+    #data_files = [[
+    #('', ["LATEST-IS"]),
+    #]],
 )

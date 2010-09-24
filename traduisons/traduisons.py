@@ -417,7 +417,7 @@ class TranslateWindow(translator):
 
         ## Try to load icon or skip
         try:
-            self.window.set_icon_from_file(os.path.join(appPath, "traduisons_icon.ico"))
+            self.window.set_icon_from_file(os.path.join(appPath, "data/traduisons_icon.ico"))
         except Exception, e:
             pass
             #print e.message
@@ -482,7 +482,7 @@ class TranslateWindow(translator):
         self.hbox3.pack_start(self.statusBar1)
         self.hbox3.pack_start(self.statusBar2, False)
         try:
-            googleLogoPath = os.path.join(appPath, 'google-small-logo.png')
+            googleLogoPath = os.path.join(appPath, 'data/google-small-logo.png')
             if not os.path.isfile(googleLogoPath):
                 raise Exception
             googleLogo = gtk.Image()
