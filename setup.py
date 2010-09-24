@@ -1,44 +1,23 @@
 #!/usr/bin/env python
 from distutils import core
-
-# For side effects!
-try:
-    import py2exe
-    from py2exe import build_exe
-except:
-    pass
-
-from traduisons import msg_VERSION
-
-class Py2exeCommand(build_exe.py2exe):
-    def get_hidden_imports(self):
-        d = build_exe.py2exe.get_hidden_imports(self)
-        d.setdefault('gtk._gtk', []).extend([
-                'cairo', 'pango', 'pangocairo', 'atk'])
-        return d
+from traduisons.traduisons import msg_VERSION
 
 core.setup(
-    name = "Traduisons!",
+    name = "Traduisons",
     description = "A front-end to Google Translate",
+    long_description = open('README').read(),
     version = str(msg_VERSION),
     author = 'John Tyree',
-    author_email = 'johntyree@gmail.com',
+    author_email = '',
     url = 'http://traduisons.googlecode.com',
-    windows = [
-        {"script": "traduisons.py",
-        "icon_resources": [(1, "traduisons_icon.ico")]
-        }
-    ],
-    options = {
-        'py2exe': {
-            'includes': ['gio'],
-        },
-    },
-
+    license = "LICENSE",
+    packages = ['traduisons'],
+    #scripts = ['bin/traduisons.py']
+    #package_data = [
+        #{ 'traduisons' : ['../lICENSE'] }
+    #],
     data_files = [
-        ("google-small-logo.png"),
+        ('', ["LICENSE"]),
+        #('', ["LICENSE", "google-small-logo.png", "traduisons_icon.png"]),
     ],
-    cmdclass={
-        'py2exe': Py2exeCommand,
-        },
 )
