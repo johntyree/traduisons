@@ -29,8 +29,7 @@ core.setup(
         'traduisons' : ['data/traduisons_icon.png',
                         'data/traduisons_icon.ico',
                         'data/google-small-logo.png']
-    }
-
+    },
     # py2exe data
     windows = [
         {"script": "traduisons.py",
