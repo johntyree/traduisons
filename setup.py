@@ -32,8 +32,8 @@ core.setup(
     },
     # py2exe data
     windows = [
-        {"script": "traduisons.py",
-        "icon_resources": [(1, "traduisons_icon.ico")]
+        {"script": "traduisons/traduisons.py",
+        "icon_resources": [(1, "traduisons/data/traduisons_icon.ico")]
         }
     ],
     options = {
