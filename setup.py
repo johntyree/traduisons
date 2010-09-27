@@ -10,7 +10,7 @@ core.setup(
     author = 'John Tyree',
     author_email = 'test',
     url = 'http://traduisons.googlecode.com',
-    license = "LICENSE",
+    license = open('LICENSE').read(),
     packages = ['traduisons'],
     package_data = {
         'traduisons' : ['data/traduisons_icon.png',
