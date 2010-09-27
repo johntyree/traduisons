@@ -12,8 +12,9 @@ core.setup(
     url = 'http://traduisons.googlecode.com',
     license = "LICENSE",
     packages = ['traduisons'],
-    #package_data = { 'traduisons' : ['data/traduisons_icon.ico', 'data/google-small-logo.png']}
-    #data_files = [[
-    #('', ["LATEST-IS"]),
-    #]],
+    package_data = {
+        'traduisons' : ['data/traduisons_icon.png',
+                        'data/traduisons_icon.ico',
+                        'data/google-small-logo.png']
+    }
 )
