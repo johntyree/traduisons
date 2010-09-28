@@ -28,7 +28,7 @@ if 'py2exe' in sys.argv:
 
 
 core.setup(
-    name = "Traduisons",
+    name = "traduisons",
     description = "A front-end to Google Translate",
     long_description = open('README').read(),
     version = str(msg_VERSION),
