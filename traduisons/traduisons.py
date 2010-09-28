@@ -408,7 +408,7 @@ class TranslateWindow(translator):
         pass
 
     def __init__(self, fromLang = 'auto', toLang = 'en'):
-        traduisons_icon = gtk.gdk.pixbuf_new_from_file(os.path.join(appPath, "traduisons_icon.ico"))
+        traduisons_icon = gtk.gdk.pixbuf_new_from_file(os.path.join(appPath, "data", "traduisons_icon.ico"))
         google_logo = gtk.gdk.PixbufLoader('png')
         google_logo.write(base64.b64decode('''
 iVBORw0KGgoAAAANSUhEUgAAADMAAAAPCAYAAABJGff8AAAABGdBTUEAAK/INwWK6QAAABl0RVh0

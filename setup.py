@@ -1,29 +1,39 @@
 #!/usr/bin/env python
 from distutils import core
+from traduisons.traduisons import msg_VERSION
+import sys
 
-# For side effects!
-import py2exe
-
-from py2exe import build_exe
-from traduisons import msg_VERSION
-
-class Py2exeCommand(build_exe.py2exe):
-    def get_hidden_imports(self):
-        d = build_exe.py2exe.get_hidden_imports(self)
-        d.setdefault('gtk._gtk', []).extend([
-                'cairo', 'pango', 'pangocairo', 'atk'])
-        return d
+Py2exeCommand = None
+if 'py2exe' in sys.argv:
+    # For side effects!
+    import py2exe
+    from py2exe import build_exe
+    class Py2exeCommand(build_exe.py2exe):
+        def get_hidden_imports(self):
+            d = build_exe.py2exe.get_hidden_imports(self)
+            d.setdefault('gtk._gtk', []).extend([
+                    'cairo', 'pango', 'pangocairo', 'atk'])
+            return d
 
 core.setup(
-    name = "Traduisons!",
+    name = "Traduisons",
     description = "A front-end to Google Translate",
+    long_description = open('README').read(),
     version = str(msg_VERSION),
     author = 'John Tyree',
-    author_email = 'johntyree@gmail.com',
+    author_email = 'test',
     url = 'http://traduisons.googlecode.com',
+    license = open('LICENSE').read(),
+    packages = ['traduisons'],
+    package_data = {
+        'traduisons' : ['data/traduisons_icon.png',
+                        'data/traduisons_icon.ico',
+                        'data/google-small-logo.png']
+    },
+    # py2exe data
     windows = [
-        {"script": "traduisons.py",
-        "icon_resources": [(1, "traduisons_icon.ico")]
+        {"script": "traduisons/traduisons.py",
+        "icon_resources": [(1, "traduisons/data/traduisons_icon.ico")]
         }
     ],
     options = {
@@ -31,11 +41,8 @@ core.setup(
             'includes': ['gio'],
         },
     },
-
-    data_files = [
-        ("google-small-logo.png"),
-    ],
     cmdclass={
         'py2exe': Py2exeCommand,
-        },
+    },
 )
+

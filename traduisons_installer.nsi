@@ -1,4 +1,4 @@
-; traduisons_install.nsi
+; traduisons_installer.nsi
 ;
 
 ;--------------------------------
@@ -12,10 +12,15 @@ OutFile "traduisons_installer.exe"
 ; The default installation directory
 InstallDir $PROGRAMFILES\Traduisons
 
+; The license file to be read
+LicenseData LICENSE
+
+
 ;--------------------------------
 
 ; Pages
 
+Page license
 Page directory
 Page instfiles
 
@@ -34,11 +39,15 @@ Section "Install"
   CreateDirectory "$SMPROGRAMS\Traduisons!"
   CreateShortCut  "$SMPROGRAMS\Traduisons!\Traduisons!.lnk" "$INSTDIR\traduisons.exe"
   CreateShortCut  "$SMPROGRAMS\Traduisons!\Uninstall.lnk" "$INSTDIR\Uninst.exe"
-SectionEnd ; end the section
+SectionEnd
 
 Section "Uninstall"
-  Delete $INSTDIR\*
-  RMDir  $INSTDIR
-  Delete "$SMPROGRAMS\Traduisons!\*"
-  RMDir  "$SMPROGRAMS\Traduisons!"
+  MessageBox MB_OKCANCEL "Uninstall Traduisons!?" IDOK do_uninstall IDCANCEL QuitNow
+  do_uninstall:
+	  Delete $INSTDIR\*
+	  RMDir  $INSTDIR
+	  Delete "$SMPROGRAMS\Traduisons!\*"
+	  RMDir  "$SMPROGRAMS\Traduisons!"
+  QuitNow:
+      Quit
 SectionEnd
