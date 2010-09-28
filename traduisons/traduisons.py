@@ -1,41 +1,45 @@
 #! /usr/bin/env python
+
+# Copyright 2010 John E Tyree <johntyree@gmail.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+
 """
     Traduisons!
     http://traduisons.googlecode.com
 
-    Uses Google Translate from the terminal
-    Arabic and Persian are borked.
-    Check out scale widgets?
-    Some issue with 'auto'. Often unable to translate.
-    Works with proper language selected.
-"""
-"""
-    Copyright 2010 John E Tyree <johntyree@gmail.com>
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-    MA 02110-1301, USA.
+    Python bindings to Google Translate RESTful API
 """
 
-import urllib2, urllib, string, htmlentitydefs, re, sys, os, threading, base64
-from distutils import version
-
+import base64
+import htmlentitydefs
 # In python <= 2.5, standard 'json' is not included 
 try:
     import json
 except(ImportError):
     import simplejson as json
+import os
+import re
+import string
+import sys
+import threading
+import urllib
+import urllib2
+from distutils import version
+
 
 msg_VERSION = version.StrictVersion('0.4.0')
 msg_DOWNLOAD = 'http://code.google.com/p/traduisons/downloads/list'
@@ -46,7 +50,7 @@ Copyright (C) 201 John E Tyree <johntyree@gmail.com>
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
-""" % msg_VERSION
+""" % (msg_VERSION,)
 msg_BUGS = "Bugs, suggestions at <http://code.google.com/p/traduisons/issues/list>"
 msg_USAGE = """Usage: %s [OPTION]...
 Translate a string between languages using Google Translate.
@@ -55,7 +59,7 @@ OPTIONS
   -h, --help            Show help and basic usage.
   -n, --no-gui          Run at command line only.
   -v, --version         Print version information and exit.
-""" % sys.argv[0]
+""" % (sys.argv[0],)
 
 msg_HELP = """Type the name or code for the desired language.
 Format:  <Input Language> | <Target Language>
@@ -136,67 +140,67 @@ def clipboard_get():
 class translator:
     '''Abstraction of the Google Translate RESTful API'''
 
-    dictLang = {'Detect Language' : 'auto',
-                'Afrikaans' : 'af',
-                'Albanian' : 'sq',
-                'Arabic' : 'ar',
-                'Armenian' : 'hy',
-                'Azerbaijani' : 'az',
-                'Basque' : 'eu',
-                'Belarusian' : 'be',
-                'Bulgarian' : 'bg',
-                'Catalan' : 'ca',
-                'Chinese' : 'zh-CN',
-                'Chinese (Simplified)' : 'zh-CN',
-                'Chinese (Traditional)' : 'zh-TW',
-                'Croatian' : 'hr',
-                'Czech' : 'cs',
-                'Danish' : 'da',
-                'Dutch' : 'nl',
-                'English' : 'en',
-                'Estonian' : 'et',
-                'Filipino' : 'tl',
-                'Finnish' : 'fi',
-                'French' : 'fr',
-                'Gaelic' : 'ga',
-                'Galician' : 'gl',
-                'Georgian' : 'ka',
-                'German' : 'de',
-                'Greek' : 'el',
-                'Haitian Creole' : 'ht',
-                'Hebrew' : 'iw',
-                'Hindi' : 'hi',
-                'Hungarian' : 'hu',
-                'Icelandic' : 'is',
-                'Indonesian' : 'id',
-                'Irish' : 'ga',
-                'Italian' : 'it',
-                'Japanese' : 'ja',
-                'Korean' : 'ko',
-                'Latvian' : 'lv',
-                'Lithuanian' : 'lt',
-                'Macedonian' : 'mk',
-                'Malay' : 'ms',
-                'Maltese' : 'mt',
-                'Norwegian' : 'no',
-                'Persian' : 'fa',
-                'Polish' : 'pl',
-                'Portuguese' : 'pt',
-                'Romanian' : 'ro',
-                'Russian' : 'ru',
-                'Serbian' : 'sr',
-                'Slovak' : 'sk',
-                'Slovenian' : 'sl',
-                'Spanish' : 'es',
-                'Swahili' : 'sw',
-                'Swedish' : 'sv',
-                'Thai' : 'th',
-                'Turkish' : 'tr',
-                'Ukrainian' : 'uk',
-                'Urdu' : 'ur',
-                'Vietnamese' : 'vi',
-                'Welsh' : 'cy',
-                'Yiddish' : 'yi',
+    dictLang = {'Detect Language': 'auto',
+                'Afrikaans': 'af',
+                'Albanian': 'sq',
+                'Arabic': 'ar',
+                'Armenian': 'hy',
+                'Azerbaijani': 'az',
+                'Basque': 'eu',
+                'Belarusian': 'be',
+                'Bulgarian': 'bg',
+                'Catalan': 'ca',
+                'Chinese': 'zh-CN',
+                'Chinese (Simplified)': 'zh-CN',
+                'Chinese (Traditional)': 'zh-TW',
+                'Croatian': 'hr',
+                'Czech': 'cs',
+                'Danish': 'da',
+                'Dutch': 'nl',
+                'English': 'en',
+                'Estonian': 'et',
+                'Filipino': 'tl',
+                'Finnish': 'fi',
+                'French': 'fr',
+                'Gaelic': 'ga',
+                'Galician': 'gl',
+                'Georgian': 'ka',
+                'German': 'de',
+                'Greek': 'el',
+                'Haitian Creole': 'ht',
+                'Hebrew': 'iw',
+                'Hindi': 'hi',
+                'Hungarian': 'hu',
+                'Icelandic': 'is',
+                'Indonesian': 'id',
+                'Irish': 'ga',
+                'Italian': 'it',
+                'Japanese': 'ja',
+                'Korean': 'ko',
+                'Latvian': 'lv',
+                'Lithuanian': 'lt',
+                'Macedonian': 'mk',
+                'Malay': 'ms',
+                'Maltese': 'mt',
+                'Norwegian': 'no',
+                'Persian': 'fa',
+                'Polish': 'pl',
+                'Portuguese': 'pt',
+                'Romanian': 'ro',
+                'Russian': 'ru',
+                'Serbian': 'sr',
+                'Slovak': 'sk',
+                'Slovenian': 'sl',
+                'Spanish': 'es',
+                'Swahili': 'sw',
+                'Swedish': 'sv',
+                'Thai': 'th',
+                'Turkish': 'tr',
+                'Ukrainian': 'uk',
+                'Urdu': 'ur',
+                'Vietnamese': 'vi',
+                'Welsh': 'cy',
+                'Yiddish': 'yi',
                 }
 
     def __init__(self, fromLang = 'auto', toLang = 'en', start_text = ''):
@@ -209,29 +213,43 @@ class translator:
         try:
             self.msg_LATEST
         except AttributeError:
-            self.msg_LATEST = version.StrictVersion(urllib2.urlopen('http://traduisons.googlecode.com/svn/trunk/LATEST-IS').read().strip())
+            url = 'http://traduisons.googlecode.com/svn/trunk/LATEST-IS'
+            ver = urllib2.urlopen(url).read().strip()
+            self.msg_LATEST = version.StrictVersion(ver)
         return msg_VERSION >= self.msg_LATEST
 
     def update_languages(self):
-        '''Naively try to determine if new languages are available by scraping http://translate.google.com'''
-        resp = urllib2.urlopen(urllib2.Request('http://translate.google.com', None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read()
-        # namelist_regex should match Capitalized list of languages names: "English, French, Klingon, Etc...."
+        '''
+        Naively try to determine if new languages are available by scraping
+        http://translate.google.com
+        '''
+
+        headers = {'User-Agent': 'Traduisons/%s' % (msg_VERSION,)}
+        req = urllib2.Request('http://translate.google.com', None, headers)
+        resp = urllib2.urlopen(req).read()
+        # namelist_regex should match Capitalized list of languages names:
+        # "English, French, Klingon, Etc...."
         namelist_regex = '<meta name=description content="Google&#39;s free online language translation service instantly translates text and web pages. This translator supports: (.*?)">'
         m = re.search(namelist_regex, resp)
         d = {}
         if m:
             names = m.group(1).split(', ')
             for name in names:
-                # Match abbreviated language code to language name from m above
+                # Match abbreviated language code to language name from m
                 code_regex = '<option  value="([^"]+)">%s[^<]*</option>'
-                n = re.search(code_regex % name, resp)
+                n = re.search(code_regex % (name,), resp)
                 if n:
                     d[name] = n.group(1)
                 else:
                     # If no match found, just abort. Things are too messy
                     return False
-            for k, v in [('Detect Language', 'auto'), ('Gaelic', 'ga'), ('Chinese (Traditional)', 'zh-TW'), ('Chinese (Simplified)', 'zh-CN')]:
+            # These aren't listed, but are expected by users
+            for k, v in [('Detect Language', 'auto'),
+                         ('Gaelic', 'ga'),
+                         ('Chinese (Traditional)', 'zh-TW'),
+                         ('Chinese (Simplified)', 'zh-CN')]:
                 d[k] = v
+            # Remove any default languages that were not found
             for k in self.dictLang:
                 if not d.has_key(k): print k, ': Unavailable'
             self.dictLang = d
@@ -240,13 +258,18 @@ class translator:
         return False
 
     def pretty_print_languages(self, right_justify = True):
-        '''Return a string of pretty-printed, newline-delimited languages in the format Name : code'''
+        '''
+        Return a string of pretty-printed, newline-delimited languages in
+        the format Name : code
+        '''
         l = []
         width = 0
         if right_justify:
             width = max([len(x) for x in self.dictLang.keys()])
         for item in sorted(self.dictLang.keys()):
-            l.append(''.join(["%", str(width), 's', ' : %s']) % (item, self.dictLang[item]))
+            line = ''.join(["%", str(width), 's : %s']) % \
+                (item, self.dictLang[item])
+            l.append(line)
         return '\n'.join(l)
 
     def toLang(self, l = None):
@@ -257,22 +280,24 @@ class translator:
             if l in self.dictLang.values(): self._toLang = l
             else:
                 ## Check language name
-                self._toLang = self.dictLang.get(string.capitalize(l), self._toLang)
+                self._toLang = self.dictLang.get(string.capitalize(l),
+                                                 self._toLang)
         return self._toLang
 
     def fromLang(self, l = None):
-        '''Get or set source language'''
+        '''Get or set source language.'''
         if l is not None:
             ## Check character code
             if l in self.dictLang.values():
                 self._fromLang = l
             else:
                 ## Check language name
-                self._fromLang = self.dictLang.get(string.capitalize(l), self._fromLang)
+                self._fromLang = self.dictLang.get(string.capitalize(l),
+                                                   self._fromLang)
         return self._fromLang
 
     def swapLang(self):
-        '''Reverse direction the direction of translation'''
+        '''Reverse direction the direction of translation.'''
         f = self._fromLang
         t = self._toLang
         if not self.toLang(f) or not self.fromLang(t):
@@ -282,20 +307,27 @@ class translator:
         return True
 
     def raw_text(self, t = None):
-        '''Get or set translation text, ignoring embedded directives such as '/' and '.' '''
+        '''
+        Get or set translation text, ignoring embedded directives such
+        as '/' and '.'.
+        '''
         if t is not None:
             t = unicode(t)
             self._text = t
         return self._text
 
     def text(self, text = None):
-        '''Get or set translation text, handling embedded directives such as '/' and '.' '''
+        '''
+        Get or set translation text, handling embedded directives such
+        as '/' and '.'.
+        '''
         if text is None: return self._text
         if text == '':
             self._text = u''
             return
         RETURN_CODE = False
-        if text in ('.exit', '.quit', '.quitter', 'exit()'): RETURN_CODE = 'EXIT'
+        if text in ('.exit', '.quit', '.quitter', 'exit()'):
+            RETURN_CODE = 'EXIT'
         ## Use the '/' character to reverse translation direction.
         elif text[0] == '/' or text[-1] == '/':
             self.swapLang()
@@ -319,43 +351,53 @@ class translator:
         return (self._text, RETURN_CODE)
 
     def detect_lang(self):
-        '''Return the guessed two letter code corresponding to translation text'''
+        '''
+        Return the guessed two letter code corresponding to translation
+        text.
+        '''
         urldata = urllib.urlencode({'v': 1.0, 'q': self._text})
-        response = urllib2.urlopen(urllib2.Request('http://ajax.googleapis.com/ajax/services/language/detect?%s' % urldata, None, {'User-Agent':'Traduisons/%s' % msg_VERSION})).read()
+        url = 'http://ajax.googleapis.com/ajax/services/language/detect?%s' % \
+                (urldata,)
+        headers = {'User-Agent': 'Traduisons/%s' % (msg_VERSION,)}
+        req = urllib2.Request(url, None, headers)
+        response = urllib2.urlopen(req).read()
         return json.loads(response)['responseData']['language']
 
     def translate(self):
         '''Return translated text from fromLang to toLang.'''
         if self._text == '':
             self.result = ''
-        else:
-            try:
-                ## Use the official google translate-api via REST
-                ## 'auto' needs to be set to blank now
-                if self._fromLang == 'auto':
-                    fromLangTemp = ''
-                else:
-                    fromLangTemp = self._fromLang
-                urldata = urllib.urlencode({'v': 1.0,
-                                            'q': self._text,
-                                            'langpair' : '%s|%s' % (fromLangTemp, self._toLang)
-                                           })
-                url = 'http://ajax.googleapis.com/ajax/services/language/translate?%s' % (urldata)
-                headers = {'User-Agent':'Traduisons/%s' % msg_VERSION}
-                response = urllib2.urlopen(urllib2.Request(url, None, headers)).read()
-                self.result = self._unquotehtml(json.loads(response)['responseData']['translatedText'])
-            ##  If translated_text is empty (no translation found) handle exception.
-            except TypeError, e:
-                self._error = ('No translation available', e)
-                return False
-            ##  Not sure about this, some kind of error when the net is unavailable perhaps?
-            except urllib2.HTTPError, e:
-                self._error = ('urllib2.HTTPError', e)
-                return False
-            ## If the url ever changes...
-            except urllib2.URLError, e:
-                self._error = (e.reason, e)
-                return False
+            return True
+        try:
+            # Use the official google translate-api via REST
+            # 'auto' needs to be set to blank now
+            if self._fromLang == 'auto':
+                fromLangTemp = ''
+            else:
+                fromLangTemp = self._fromLang
+            langpair = '%s|%s' % (fromLangTemp, self._toLang)
+            urldata = urllib.urlencode({'v': 1.0,
+                                        'q': self._text,
+                                        'langpair': langpair
+                                       })
+            url = 'http://ajax.googleapis.com/ajax/services/language/translate?%s' % \
+                (urldata,)
+            headers = {'User-Agent': 'Traduisons/%s' % (msg_VERSION,)}
+            req = urllib2.Request(url, None, headers)
+            response = urllib2.urlopen(req).read()
+            result = json.loads(response)['responseData']['translatedText']
+            self.result = self._unquotehtml(result)
+        # If 'result' is empty (pretty generic error) handle exception.
+        except TypeError, e:
+            self._error = ('No translation available', e)
+            return False
+        except urllib2.HTTPError, e:
+            self._error = ('urllib2.HTTPError: Check network connection', e)
+            return False
+        ## If the url ever changes...
+        except urllib2.URLError, e:
+            self._error = (e.reason, e)
+            return False
         return True
 
     def _unquotehtml(self, s):
@@ -366,11 +408,11 @@ class translator:
                 try:
                     return chr(int(m.group(2)))
                 except XValueError:
-                    return '&#%s;' % m.group(2)
+                    return '&#%s;' % (m.group(2),)
             try:
                 return htmlentitydefs.entitydefs[m.group(2)]
             except KeyError:
-                return ('&%s;' % m.group(2)).decode('ISO-8859-1')
+                return ('&%s;' % (m.group(2),)).decode('ISO-8859-1'),
         return re.sub(r'&(#)?([^;]+);',convertentity,s)
 
 ## ------*------ End TRANSLATOR ------*------
@@ -402,13 +444,14 @@ class TranslateWindow(translator):
         print """
         Install modules or try:
             python "%s" --no-gui
-            """ % (sys.argv[0])
+            """ % (sys.argv[0],)
         sys.exit()
     except NameError:
         pass
 
     def __init__(self, fromLang = 'auto', toLang = 'en'):
-        traduisons_icon = gtk.gdk.pixbuf_new_from_file(os.path.join(appPath, "data", "traduisons_icon.ico"))
+        iconfile = os.path.join(appPath, "data", "traduisons_icon.ico")
+        traduisons_icon = gtk.gdk.pixbuf_new_from_file(iconfile)
         google_logo = gtk.gdk.PixbufLoader('png')
         google_logo.write(base64.b64decode('''
 iVBORw0KGgoAAAANSUhEUgAAADMAAAAPCAYAAABJGff8AAAABGdBTUEAAK/INwWK6QAAABl0RVh0
@@ -449,9 +492,9 @@ cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC
         google_logo.close()
         google_logo = google_logo.get_pixbuf()
         self.pixbufs = {
-            'google_logo' : google_logo,
-            'traduisons_icon' : traduisons_icon,
-        }
+            'google_logo': google_logo,
+            'traduisons_icon': traduisons_icon,
+            }
 
 		## localize variables
         translator.__init__(self, fromLang, toLang)
@@ -474,9 +517,16 @@ cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC
 
         ## Keyboard Accelerators
         self.AccelGroup = gtk.AccelGroup()
-        #self.AccelGroup.connect_group(ord('Q'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: gtk.main_quit())
-        self.AccelGroup.connect_group(ord('Q'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: sys.exit())
-        self.AccelGroup.connect_group(ord('N'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, lambda w, x, y, z: self.result_buffer.set_text(''))
+        #self.AccelGroup.connect_group(ord('Q'), gtk.gdk.CONTROL_MASK,
+                                      #gtk.ACCEL_LOCKED,
+                                      #lambda w, x, y, z: gtk.main_quit())
+        self.AccelGroup.connect_group(ord('Q'), gtk.gdk.CONTROL_MASK,
+                                      gtk.ACCEL_LOCKED,
+                                      lambda w, x, y, z: sys.exit())
+        self.AccelGroup.connect_group(ord('N'), gtk.gdk.CONTROL_MASK,
+                                      gtk.ACCEL_LOCKED,
+                                      lambda w, x, y, z:
+                                          self.resultbuffer1.set_text(''))
         self.window.add_accel_group(self.AccelGroup)
 
         self.vbox1 = gtk.VBox(False, 0)
@@ -488,7 +538,8 @@ cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC
 
         ## language label
         self.langbox = gtk.Label()
-        self.langbox.set_markup('' + str(self.fromLang()) + ' | ' + str(self.toLang()) + ':  ')
+        self.langbox.set_markup(str(self.fromLang()) + ' | ' + \
+                                str(self.toLang()) + ':  ')
         self.hbox1.pack_start(self.langbox, False, False, 1)
         self.langbox.set_tooltip_text(self.msg_LANGTIP)
 
@@ -513,7 +564,9 @@ cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC
         self.resultbuffer1 = self.result1.get_buffer()
         self.resultbuffer1.create_tag('fromLang', foreground = "dark red")
         self.resultbuffer1.create_tag('toLang',foreground = "dark blue")
-        self.resultbuffer1.create_mark('end', self.resultbuffer1.get_end_iter(), False)
+        self.resultbuffer1.create_mark('end',
+                                       self.resultbuffer1.get_end_iter(),
+                                       False)
 
         ## Scroll Bar
         self.resultscroll = gtk.ScrolledWindow()
@@ -552,7 +605,10 @@ cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC
 
     @backgroundThread
     def check_for_update(self):
-        '''Update language list. Check the server for a new version of Traduisons and notify the user.'''
+        '''
+        Update language list. Check the server for a new version of
+        Traduisons and notify the user.
+        '''
         self.update_languages()
         self.msg_LANGTIP = self.pretty_print_languages(0)
         gobject.idle_add(self.langbox.set_tooltip_text, self.msg_LANGTIP)
@@ -560,14 +616,16 @@ cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC
             self.msg_MODAL = 'Update Available!'
             print self.msg_MODAL
             self.modal_message(self.msg_MODAL)
-            gobject.idle_add(self.statusBar1.set_tooltip_text, 'Get Traduisons! %s\n%s' % (self.msg_LATEST, msg_DOWNLOAD))
+            tooltip = 'Get Traduisons! %s\n%s' % (self.msg_LATEST,
+                                                  msg_DOWNLOAD)
+            gobject.idle_add(self.statusBar1.set_tooltip_text, tooltip)
         return
 
     def enter_callback(self, widget, data = None):
         '''Submit entrybox text for translation.'''
-
+        buf = self.resultbuffer1
         if self.entry.get_text() in ('.clear', 'clear()'):
-            self.resultbuffer1.set_text('')
+            buf.set_text('')
             self.entry.set_text('')
             return
         result = self.text(self.entry.get_text())
@@ -575,12 +633,14 @@ cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC
             return
 
         if 'HELP' in result:
-            self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '\nPlease visit:\nhttp://code.google.com/p/traduisons/wiki')
-            self.result1.scroll_mark_onscreen(self.resultbuffer1.get_mark('end'))
+            help_text = '\nPlease visit:\nhttp://code.google.com/p/traduisons/wiki'
+            buf.insert(buf.get_end_iter(), help_text)
+            self.result1.scroll_mark_onscreen(buf.get_mark('end'))
             self.entry.set_text('')
             return
         elif 'SWAP' in result or 'CHANGE' in result:
-            self.langbox.set_markup('' + self.fromLang() + ' | ' + self.toLang() + ':  ')
+            self.langbox.set_markup(self.fromLang() + ' | ' +
+                                    self.toLang() + ':  ')
             if 'SWAP' in result:
                 self.entry.set_text(self.text())
             elif 'CHANGE' in result:
@@ -594,8 +654,8 @@ cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC
         self.entry.select_region(0, -1)
 
         ## If it's not blank, stick a newline on the end.
-        if self.resultbuffer1.get_text(self.resultbuffer1.get_start_iter(), self.resultbuffer1.get_end_iter()) != '':
-            self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '\n')
+        if buf.get_text(buf.get_start_iter(), buf.get_end_iter()) != '':
+            buf.insert(buf.get_end_iter(), '\n')
 
         # Sending out text for translation
         fromLangTemp = self.fromLang()
@@ -608,25 +668,25 @@ cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC
         self.modal_message()
         if translation == '': return
 
-        # Setting marks to apply fromLang and toLang tags
-        self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), '%s:' % fromLangTemp)
-        front = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
+        # Setting marks to apply fromLang and toLang color tags
+        buf.insert(buf.get_end_iter(), '%s:' % (fromLangTemp,))
+        front = buf.get_iter_at_mark(buf.get_insert())
         front.backward_word_start()
-        back = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
-        self.resultbuffer1.apply_tag_by_name('fromLang', front, back)
-        self.result1.scroll_mark_onscreen(self.resultbuffer1.get_mark('end'))
-        self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), ' %s\n  %s:' % (self.entry.get_text(), self.toLang()))
-        front = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
-        front.backward_word_start()
-        back = self.resultbuffer1.get_iter_at_mark(self.resultbuffer1.get_insert())
-        self.resultbuffer1.apply_tag_by_name('toLang', front, back)
-        self.resultbuffer1.insert(self.resultbuffer1.get_end_iter(), ' %s' % (translation))
-        self.result1.scroll_mark_onscreen(self.resultbuffer1.get_mark('end'))
-        print "%s: %s\n  %s: %s" % (fromLangTemp, self.entry.get_text(), self.toLang(), translation)
+        back = buf.get_iter_at_mark(buf.get_insert())
+        buf.apply_tag_by_name('fromLang', front, back)
+        self.result1.scroll_mark_onscreen(buf.get_mark('end'))
 
-        ## Copy to clipboard
-        ## Commenting this out due to overwhelming lag when running a clipboard manager
-        #c = clipboard()
+        buf.insert(buf.get_end_iter(), ' %s\n  %s:' % (self.entry.get_text(),
+                                                       self.toLang()))
+        front = buf.get_iter_at_mark(buf.get_insert())
+        front.backward_word_start()
+        back = buf.get_iter_at_mark(buf.get_insert())
+        buf.apply_tag_by_name('toLang', front, back)
+        buf.insert(buf.get_end_iter(), ' %s' % (translation,))
+        self.result1.scroll_mark_onscreen(buf.get_mark('end'))
+        print "%s: %s\n  %s: %s" % (fromLangTemp, self.entry.get_text(),
+                                    self.toLang(), translation)
+
         try:
             self.clipboard
         except AttributeError:
@@ -663,7 +723,8 @@ def main():
         print "\npowered by Google ..."
         t = translator()
         if not t.is_latest():
-            print "Version %s now available! %s" % (t.msg_LATEST, msg_DOWNLOAD)
+            print "Version %s now available! %s" % (t.msg_LATEST,
+                                                    msg_DOWNLOAD)
         # This is blocking, who wants to wait around?
         # t.update_languages()
         while True:
