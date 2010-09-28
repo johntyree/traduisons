@@ -41,8 +41,12 @@ Section "Install"
 SectionEnd ; end the section
 
 Section "Uninstall"
-  Delete $INSTDIR\*
-  RMDir  $INSTDIR
-  Delete "$SMPROGRAMS\Traduisons!\*"
-  RMDir  "$SMPROGRAMS\Traduisons!"
+; SEE for what is supposed to happen here
+; http://nsis.sourceforge.net/Docs/Chapter4.html#4.9.4
+  MB_OKCANCEL "Uninstall Traduisons!?" IDOK do_uninstall IDCANCEL Quit
+  do_uninstall:
+	  Delete $INSTDIR\*
+	  RMDir  $INSTDIR
+	  Delete "$SMPROGRAMS\Traduisons!\*"
+	  RMDir  "$SMPROGRAMS\Traduisons!"
 SectionEnd
