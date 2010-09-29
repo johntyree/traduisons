@@ -33,7 +33,7 @@ core.setup(
     long_description = open('README').read(),
     version = str(msg_VERSION),
     author = 'John Tyree',
-    author_email = 'test',
+    author_email = 'johntyree@gmail.com',
     url = 'http://traduisons.googlecode.com',
     license = open('LICENSE').read(),
     packages = ['traduisons'],
