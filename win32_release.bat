@@ -4,7 +4,9 @@ python setup.py py2exe
 mkdir dist\data
 copy /V traduisons\data dist\data
 makensis traduisons_installer.nsi
+@echo on
 copy traduisons_installer.exe Z:\traduisons_%VER%_win32.exe
+@echo off
 del /f /s /q build dist traduisons.pyc
 rmdir /s /q build dist
 echo "Copied: .\traduisons_installer.exe -> Z:\traduisons_%VER%_win32.exe"
