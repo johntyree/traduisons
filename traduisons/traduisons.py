@@ -41,7 +41,7 @@ import urllib2
 from distutils import version
 
 
-msg_VERSION = version.StrictVersion('0.4.1')
+msg_VERSION = version.StrictVersion('0.4.2a')
 msg_DOWNLOAD = 'http://code.google.com/p/traduisons/downloads/list'
 msg_LICENSE = """Traduisons! %s
 http://traduisons.googlecode.com
@@ -70,8 +70,7 @@ es|          Change starting Language to Spanish:
 
 Please visit <http://code.google.com/p/traduisons/wiki> for help."""
 
-
-appPath = os.path.abspath(os.path.dirname(os.path.realpath(sys.argv[0])))
+appPath = os.path.dirname(__file__)
 start_text = ""
 fromLang = "auto"
 toLang = "en"
