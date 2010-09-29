@@ -11,13 +11,6 @@ if 'py2exe' in sys.argv:
     # For side effects!
     import py2exe
     from py2exe import build_exe
-    py2exe_args = {'windows':
-                       [{"script": "traduisons/traduisons.py",
-                         "icon_resources":
-                             [(1, "traduisons/data/traduisons_icon.ico")]}],
-                   'options': {'py2exe': {'includes': ['gio']}},
-        }
-    cmdclass_dict['py2exe'] = Py2exeCommand
 
     class Py2exeCommand(build_exe.py2exe):
         def get_hidden_imports(self):
@@ -25,6 +18,14 @@ if 'py2exe' in sys.argv:
             d.setdefault('gtk._gtk', []).extend([
                     'cairo', 'pango', 'pangocairo', 'atk'])
             return d
+    cmdclass_dict['py2exe'] = Py2exeCommand # _After_ class definition
+
+    py2exe_args = {'windows':
+                       [{"script": "traduisons/traduisons.py",
+                         "icon_resources":
+                             [(1, "traduisons/data/traduisons_icon.ico")]}],
+                   'options': {'py2exe': {'includes': ['gio']}},
+        }
 
 
 core.setup(
@@ -37,11 +38,9 @@ core.setup(
     url = 'http://traduisons.googlecode.com',
     license = open('LICENSE').read(),
     packages = ['traduisons'],
-    package_data = {
-        'traduisons' : ['data/traduisons_icon.png',
-                        'data/traduisons_icon.ico',
-                        'data/google-small-logo.png']
-    },
+    package_data = { 'traduisons' : ['data/traduisons_icon.png',
+                                     'data/traduisons_icon.ico',]
+        },
     cmdclass = cmdclass_dict,
     **py2exe_args
 )
