@@ -42,5 +42,6 @@ core.setup(
                                      'data/traduisons_icon.ico',]
         },
     cmdclass = cmdclass_dict,
+    scripts = ['bin/traduisons'],
     **py2exe_args
 )
