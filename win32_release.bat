@@ -1,3 +1,4 @@
+@echo off
 for /f "delims=" %%a in ('python setup.py --version') do @set VER=%%a
 python setup.py py2exe
 mkdir dist\data
