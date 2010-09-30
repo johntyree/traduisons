@@ -24,61 +24,7 @@ import os
 try:
     import traduisons as t
 except ImportError:
-    sys.path.append(os.path.realpath(os.path.join(__file__, '..', '..')))
+    sys.path.insert(0, (os.path.realpath(os.path.join(__file__, '..', '..'))))
     import traduisons as t
 
-def main():
-    guiflag = True
-    for arg in sys.argv[1:]:
-        if arg in ('--help', '-h', "/?"):
-            print t.msg_USAGE, "\n", t.msg_HELP
-            sys.exit()
-        elif arg in ('--no-gui', '-n', "/n"):
-            guiflag = False
-        elif arg in ("--version", "-v", "/v"):
-            print t.msg_LICENSE
-            sys.exit()
-        else:
-            print t.msg_USAGE, "\n", t.msg_BUGS
-            sys.exit()
-
-
-    ## Start traduisons!
-    if guiflag:
-        t.TranslateWindow()
-        t.gtk.main()
-    else:
-        print "\npowered by Google ..."
-        tr = t.translator()
-        if not tr.is_latest():
-            print "Version %s now available! %s" % (tr.msg_LATEST,
-                                                    t.msg_DOWNLOAD)
-        # This is blocking, who wants to wait around?
-        # t.update_languages()
-        while True:
-            t.text('')
-            while t.text() == '':
-                stringLang = t.fromLang() + "|" + t.toLang() + ": "
-                try:
-                    result = t.text(raw_input(stringLang))
-                    if None == result:
-                       break
-                    elif 'HELP' == result[1]:
-                        print t.msg_HELP
-                        print t.pretty_print_languages()
-                except EOFError:
-                    print
-                    sys.exit()
-            if t.translate():
-                if t.result != '':
-                    if t.fromLang() == 'auto':
-                        l = t.detect_lang()
-                        for k, v in t.dictLang.items():
-                            if v == l:
-                                print k, '-', v
-                    print t.result
-            else:
-                raise t.result[1]
-    return 0
-
-if __name__ == '__main__': main()
+t.main()
