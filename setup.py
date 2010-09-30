@@ -1,7 +1,17 @@
 #!/usr/bin/env python
 import sys
+import os
+import shutil
 from distutils import core
 from traduisons import msg_VERSION
+
+README = os.path.join(os.path.dirname(__file__), 'README')
+LICENSE = os.path.join(os.path.dirname(__file__), 'LICENSE')
+CHANGELOG = os.path.join(os.path.dirname(__file__), 'CHANGELOG')
+CHANGELOG_WIKI = os.path.join(os.path.dirname(__file__), os.pardir, 'wiki', 'ChangeLog.wiki')
+
+if os.path.isfile(CHANGELOG_WIKI):
+    shutil.copy2(CHANGELOG_WIKI, CHANGELOG)
 
 Py2exeCommand = None
 py2exe_args = {}
@@ -26,7 +36,6 @@ if 'py2exe' in sys.argv:
                              [(1, "traduisons/data/traduisons_icon.ico")]}],
                    'options': {'py2exe': {'includes': ['gio']}},
         }
-
 
 core.setup(
     name = "traduisons",

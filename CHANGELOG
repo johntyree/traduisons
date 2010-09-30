@@ -1,8 +1,11 @@
 ﻿#summary Revision History of Traduisons!.
 #labels Phase-Design
 
-
 == Release 0.4.x ==
+
+  == 0.4.2 ==
+
+  * New: Include launch script at /usr/bin/traduisons
 
   == 0.4.1 ==
 
