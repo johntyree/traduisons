@@ -274,9 +274,11 @@ class translator:
     def toLang(self, l = None):
         '''Get or set target language'''
         if l is not None:
-            if l == 'auto': return False
+            if l == 'auto':
+                return False
             ## Check character code
-            if l in self.dictLang.values(): self._toLang = l
+            if l in self.dictLang.values():
+                self._toLang = l
             else:
                 ## Check language name
                 self._toLang = self.dictLang.get(string.capitalize(l),
@@ -487,7 +489,7 @@ T475EBgCfJevPCieoyCxIxP2vQIZx7MQ0FKv9/VdELRc/DlP5UZwuIqgYNHSjYmBtzvpoOqSXI9k
 9eWd833FnJ/82vPx4IV2APcDBZ+pXflkYUxhXK+BsxOb2L8eiFLrHyq3ZI1nacNBuaT+oNPBs7oZ
 fdFIDbeAhLOcUQZcrhwIGv3Mfnn4H1k+HMVwQTY1zdoelj6U/MA2ZmcBcVu0xOAazUiMqTN9Z3U1
 cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC
-                                 '''))
+            '''))
         google_logo.close()
         google_logo = google_logo.get_pixbuf()
         self.pixbufs = {
@@ -665,7 +667,8 @@ cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC
             raise self._error[1]
         translation = self.result
         self.modal_message()
-        if translation == '': return
+        if translation == '':
+            return
 
         # Setting marks to apply fromLang and toLang color tags
         buf.insert(buf.get_end_iter(), '%s:' % (fromLangTemp,))
