@@ -41,7 +41,7 @@ import urllib2
 from distutils import version
 
 
-msg_VERSION = version.StrictVersion('0.4.2a1')
+msg_VERSION = version.StrictVersion('0.4.2')
 msg_DOWNLOAD = 'http://code.google.com/p/traduisons/downloads/list'
 msg_LICENSE = """Traduisons! %s
 http://traduisons.googlecode.com

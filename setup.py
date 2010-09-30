@@ -40,12 +40,12 @@ if 'py2exe' in sys.argv:
 core.setup(
     name = "traduisons",
     description = "A front-end to Google Translate",
-    long_description = open('README').read(),
+    long_description = open(README).read(),
     version = str(msg_VERSION),
     author = 'John Tyree',
     author_email = 'johntyree@gmail.com',
     url = 'http://traduisons.googlecode.com',
-    license = open('LICENSE').read(),
+    license = open(LICENSE).read(),
     packages = ['traduisons'],
     package_data = { 'traduisons' : ['data/traduisons_icon.png',
                                      'data/traduisons_icon.ico',]

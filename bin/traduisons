@@ -21,10 +21,8 @@
 
 import sys
 import os
-try:
-    import traduisons as t
-except ImportError:
-    sys.path.insert(0, (os.path.realpath(os.path.join(__file__, '..', '..'))))
-    import traduisons as t
+# This ugly blob is to catch the working copy before the system-wide libs
+sys.path.insert(0, (os.path.realpath(os.path.join(__file__, '..', '..'))))
+import traduisons as t
 
 t.main()
