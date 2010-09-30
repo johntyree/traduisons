@@ -76,7 +76,7 @@ start_text = ""
 fromLang = "auto"
 toLang = "en"
 
-def echo(f):
+def announce(f):
     def newfunc(*args, **kwargs):
         print f.__name__, "BEGIN"
         f(*args, **kwargs)
