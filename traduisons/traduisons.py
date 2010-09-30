@@ -322,7 +322,8 @@ class translator:
         Get or set translation text, handling embedded directives such
         as '/' and '.'.
         '''
-        if text is None: return self._text
+        if text is None:
+            return self._text
         if text == '':
             self._text = u''
             return
@@ -347,6 +348,8 @@ class translator:
             self.fromLang(text[0:text.find('|')])
             self.toLang(text[text.find('|') + 1:])
             RETURN_CODE = 'CHANGE'
+        elif text in ('-v', '--version'):
+                RETURN_CODE = 'VERSION'
         else:
             self._text = text
         return (self._text, RETURN_CODE)
@@ -647,6 +650,13 @@ cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC
             elif 'CHANGE' in result:
                 self.entry.set_text('')
                 return
+        elif 'VERSION' in result:
+            ver_text = '\nTraduisons! - %s' % (msg_VERSION,)
+            buf.insert(buf.get_end_iter(), ver_text)
+            self.result1.scroll_mark_onscreen(buf.get_mark('end'))
+            self.entry.set_text('')
+            return
+
         elif 'EXIT' in result:
             gtk.main_quit()
             return
@@ -722,13 +732,18 @@ def main():
         TranslateWindow()
         gtk.main()
     else:
-        print "\npowered by Google ..."
+        print "\nTraduisons! - %s\npowered by Google ..." % (msg_VERSION,)
         t = translator()
         if not t.is_latest():
             print "Version %s now available! %s" % (t.msg_LATEST,
                                                     msg_DOWNLOAD)
-        # This is blocking, who wants to wait around?
-        # t.update_languages()
+
+        # This thread doesn't return until after main dies
+        # Perhaps there is a better to avoid the blocking behavior
+        #@backgroundThread
+        #def update_languages():
+            #t.update_languages()
+            #update_languages()
         while True:
             t.text('')
             while t.text() == '':
