@@ -373,7 +373,6 @@ class translator:
             self.result = ''
             return True
         try:
-            # Use the official google translate-api via REST
             # 'auto' needs to be set to blank now
             if self._fromLang == 'auto':
                 fromLangTemp = ''
@@ -391,6 +390,12 @@ class translator:
             response = urllib2.urlopen(req).read()
             result = json.loads(response)['responseData']['translatedText']
             self.result = self._unquotehtml(result)
+            if self.result.lower() == self._text.lower():
+                if self.detect_lang() == self.toLang():
+                    if self.fromLang() != 'auto':
+                        self.swapLang()
+                        print "Reversing translation direction..."
+                        self.translate()
         # If 'result' is empty (pretty generic error) handle exception.
         except TypeError, e:
             self._error = ('No translation available', e)
@@ -669,12 +674,12 @@ cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC
             buf.insert(buf.get_end_iter(), '\n')
 
         # Sending out text for translation
-        fromLangTemp = self.fromLang()
-        if self.fromLang() == 'auto':
-            fromLangTemp = self.detect_lang()
         if not self.translate():
             print repr(self._error)
             raise self._error[1]
+        fromLangTemp = self.fromLang()
+        if fromLangTemp == 'auto':
+            fromLangTemp = self.detect_lang()
         translation = self.result
         self.modal_message()
         if translation == '':
