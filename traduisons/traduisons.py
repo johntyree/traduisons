@@ -682,6 +682,8 @@ cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC
             fromLangTemp = self.detect_lang()
         translation = self.result
         self.modal_message()
+        self.langbox.set_markup(self.fromLang() + ' | ' +
+                                self.toLang() + ':  ')
         if translation == '':
             return
 
