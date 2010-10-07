@@ -374,8 +374,8 @@ class translator:
 
     def translate(self):
         '''Return translated text from fromLang to toLang.'''
+        self.result = ''
         if self._text == '':
-            self.result = ''
             return True
         try:
             # 'auto' needs to be set to blank now
@@ -419,7 +419,10 @@ class translator:
             self._error = (e.reason, e)
             return False
         finally:
-            self.result = translation
+            try:
+                self.result = translation
+            except NameError:
+                pass
         return True
 
     def _unquotehtml(self, s):
