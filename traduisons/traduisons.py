@@ -365,7 +365,12 @@ class translator:
         headers = {'User-Agent': 'Traduisons/%s' % (msg_VERSION,)}
         req = urllib2.Request(url, None, headers)
         response = urllib2.urlopen(req).read()
-        return json.loads(response)['responseData']['language']
+        result = json.loads(response)
+        if result['responseStatus'] != 200:
+            self._error = ('Unable to detect language',
+                           Exception(result['responseDetails']))
+            return False
+        return result['responseData']['language']
 
     def translate(self):
         '''Return translated text from fromLang to toLang.'''
@@ -388,14 +393,20 @@ class translator:
             headers = {'User-Agent': 'Traduisons/%s' % (msg_VERSION,)}
             req = urllib2.Request(url, None, headers)
             response = urllib2.urlopen(req).read()
-            result = json.loads(response)['responseData']['translatedText']
-            self.result = self._unquotehtml(result)
-            if self.result.lower() == self._text.lower():
+            result = json.loads(response)
+            if result['responseStatus'] != 200:
+                self._error = ('Unable to translate',
+                               Exception(result['responseDetails']))
+                translation = ''
+                return False
+            translation = result['responseData']['translatedText']
+            translation = self._unquotehtml(translation)
+            if translation.lower() == self._text.lower():
                 if self.detect_lang() == self.toLang():
                     if self.fromLang() != 'auto':
                         self.swapLang()
                         print "Reversing translation direction..."
-                        self.translate()
+                        translation = self.translate()
         # If 'result' is empty (pretty generic error) handle exception.
         except TypeError, e:
             self._error = ('No translation available', e)
@@ -407,6 +418,8 @@ class translator:
         except urllib2.URLError, e:
             self._error = (e.reason, e)
             return False
+        finally:
+            self.result = translation
         return True
 
     def _unquotehtml(self, s):
@@ -675,8 +688,10 @@ cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC
 
         # Sending out text for translation
         if not self.translate():
-            print repr(self._error)
-            raise self._error[1]
+            print 'Error:', repr(self._error)
+            if str(self._error[1]) == 'invalid translation language pair':
+                buf.insert(buf.get_end_iter(), str(self._error[1]))
+                self.fromLang('auto')
         fromLangTemp = self.fromLang()
         if fromLangTemp == 'auto':
             fromLangTemp = self.detect_lang()
