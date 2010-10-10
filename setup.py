@@ -2,8 +2,10 @@
 import sys
 import os
 import shutil
+import base64
+import tempfile
 from distutils import core
-from traduisons import msg_VERSION
+from traduisons import msg_VERSION, b64_images
 
 README = os.path.join(os.path.dirname(__file__), 'README')
 LICENSE = os.path.join(os.path.dirname(__file__), 'LICENSE')
@@ -29,11 +31,16 @@ if 'py2exe' in sys.argv:
                     'cairo', 'pango', 'pangocairo', 'atk'])
             return d
     cmdclass_dict['py2exe'] = Py2exeCommand # _After_ class definition
-
+    icon = base64.b64decode(b64_images['ico']['traduisons_icon'])
+    f = tempfile.NamedTemporaryFile(delete = False)
+    f.write(icon)
+    icon_file = f.name
+    f.close()
     py2exe_args = {'windows':
-                       [{"script": "traduisons/traduisons.py",
+                       [{"script": "bin/traduisons",
                          "icon_resources":
-                             [(1, "traduisons/data/traduisons_icon.ico")]}],
+                             [(1, icon_file)],
+                         }],
                    'options': {'py2exe': {'includes': ['gio']}},
         }
 
@@ -47,10 +54,10 @@ core.setup(
     url = 'http://traduisons.googlecode.com',
     license = open(LICENSE).read(),
     packages = ['traduisons'],
-    package_data = { 'traduisons' : ['data/traduisons_icon.png',
-                                     'data/traduisons_icon.ico',]
-        },
+    package_data = { 'traduisons': ['data/traduisons_icon.png']},
     cmdclass = cmdclass_dict,
     scripts = ['bin/traduisons'],
     **py2exe_args
 )
+
+os.unlink(icon_file)
