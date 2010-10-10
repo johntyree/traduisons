@@ -21,8 +21,12 @@
 
 import sys
 import os
-# This ugly blob is to catch the working copy before the system-wide libs
-sys.path.insert(0, (os.path.realpath(os.path.join(__file__, '..', '..'))))
-import traduisons as t
 
+try:
+    sys.path.insert(0, (os.path.realpath(os.path.join(__file__, '..', '..'))))
+    print sys.path
+except NameError, e:
+    pass
+
+import traduisons as t
 t.main()
