@@ -72,10 +72,9 @@ Please visit <http://code.google.com/p/traduisons/wiki> for help."""
 
 appPath = os.path.dirname(__file__)
 start_text = ""
-fromLang = "auto"
-toLang = "en"
-b64_images = { 'png': {
-                   'google_logo': r'''
+from_lang = "auto"
+to_lang = "en"
+b64_images = { 'png': { 'google_logo': r'''
 iVBORw0KGgoAAAANSUhEUgAAADMAAAAPCAYAAABJGff8AAAABGdBTUEAAK/INwWK6QAAABl0RVh0
 U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAcVSURBVHja3FZrbFTHFT4z97W++/KatfHG
 NrFjMNjFLQ24iiVIFBzCD1SFqj/aRlCUCvjRKlVatUFJVJJGNKUtoRVqgZZWKWCVOEqKQxsaUoyp
@@ -110,8 +109,7 @@ T475EBgCfJevPCieoyCxIxP2vQIZx7MQ0FKv9/VdELRc/DlP5UZwuIqgYNHSjYmBtzvpoOqSXI9k
 9eWd833FnJ/82vPx4IV2APcDBZ+pXflkYUxhXK+BsxOb2L8eiFLrHyq3ZI1nacNBuaT+oNPBs7oZ
 fdFIDbeAhLOcUQZcrhwIGv3Mfnn4H1k+HMVwQTY1zdoelj6U/MA2ZmcBcVu0xOAazUiMqTN9Z3U1
 cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC''', },
-               'ico': {
-                   'traduisons_icon': r'''
+               'ico': { 'traduisons_icon': r'''
 AAABAAEAMDAAAAEAIACoJQAAFgAAACgAAAAwAAAAYAAAAAEAIAAAAAAAACQAABILAAASCwAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///8A////APv+/gn5
@@ -411,9 +409,9 @@ class translator:
                 'Yiddish': 'yi',
                 }
 
-    def __init__(self, fromLang = 'auto', toLang = 'en', start_text = ''):
-        if not self.fromLang(fromLang): self.fromLang('auto')
-        if not self.toLang(toLang): self.toLang('en')
+    def __init__(self, from_lang = 'auto', to_lang = 'en', start_text = ''):
+        if not self.from_lang(from_lang): self.from_lang('auto')
+        if not self.to_lang(to_lang): self.to_lang('en')
         self._text = start_text
 
     def is_latest(self):
@@ -480,39 +478,39 @@ class translator:
             l.append(line)
         return '\n'.join(l)
 
-    def toLang(self, l = None):
+    def to_lang(self, l = None):
         '''Get or set target language'''
         if l is not None:
             if l == 'auto':
                 return False
             ## Check character code
             if l in self.dictLang.values():
-                self._toLang = l
+                self._to_lang = l
             else:
                 ## Check language name
-                self._toLang = self.dictLang.get(string.capitalize(l),
-                                                 self._toLang)
-        return self._toLang
+                self._to_lang = self.dictLang.get(string.capitalize(l),
+                                                 self._to_lang)
+        return self._to_lang
 
-    def fromLang(self, l = None):
+    def from_lang(self, l = None):
         '''Get or set source language.'''
         if l is not None:
             ## Check character code
             if l in self.dictLang.values():
-                self._fromLang = l
+                self._from_lang = l
             else:
                 ## Check language name
-                self._fromLang = self.dictLang.get(string.capitalize(l),
-                                                   self._fromLang)
-        return self._fromLang
+                self._from_lang = self.dictLang.get(string.capitalize(l),
+                                                   self._from_lang)
+        return self._from_lang
 
     def swapLang(self):
         '''Reverse direction the direction of translation.'''
-        f = self._fromLang
-        t = self._toLang
-        if not self.toLang(f) or not self.fromLang(t):
-            self._toLang = t
-            self._fromLang = f
+        f = self._from_lang
+        t = self._to_lang
+        if not self.to_lang(f) or not self.from_lang(t):
+            self._to_lang = t
+            self._from_lang = f
             return False
         return True
 
@@ -554,8 +552,8 @@ class translator:
             RETURN_CODE = 'HELP'
         ## Use '|' character to change translation language(s).
         elif text.find('|') + 1:
-            self.fromLang(text[0:text.find('|')])
-            self.toLang(text[text.find('|') + 1:])
+            self.from_lang(text[0:text.find('|')])
+            self.to_lang(text[text.find('|') + 1:])
             RETURN_CODE = 'CHANGE'
         elif text in ('-v', '--version'):
                 RETURN_CODE = 'VERSION'
@@ -582,17 +580,17 @@ class translator:
         return result['responseData']['language']
 
     def translate(self):
-        '''Return translated text from fromLang to toLang.'''
+        '''Return translated text from from_lang to to_lang.'''
         self.result = ''
         if self._text == '':
             return True
         try:
             # 'auto' needs to be set to blank now
-            if self._fromLang == 'auto':
-                fromLangTemp = ''
+            if self._from_lang == 'auto':
+                from_lang_temp = ''
             else:
-                fromLangTemp = self._fromLang
-            langpair = '%s|%s' % (fromLangTemp, self._toLang)
+                from_lang_temp = self._from_lang
+            langpair = '%s|%s' % (from_langTemp, self._to_lang)
             urldata = urllib.urlencode({'v': 1.0,
                                         'q': self._text,
                                         'langpair': langpair
@@ -611,8 +609,8 @@ class translator:
             translation = result['responseData']['translatedText']
             translation = self._unquotehtml(translation)
             if translation.lower() == self._text.lower():
-                if self.detect_lang() == self.toLang():
-                    if self.fromLang() != 'auto':
+                if self.detect_lang() == self.to_lang():
+                    if self.from_lang() != 'auto':
                         self.swapLang()
                         print "Reversing translation direction..."
                         translation = self.translate()
@@ -683,7 +681,7 @@ class TranslateWindow(translator):
     except NameError:
         pass
 
-    def __init__(self, fromLang = 'auto', toLang = 'en'):
+    def __init__(self, from_lang = 'auto', to_lang = 'en'):
         #iconfile = os.path.join(appPath, "data", "traduisons_icon.ico")
         #traduisons_icon = gtk.gdk.pixbuf_new_from_file(iconfile)
         self.pixbufs = {}
@@ -695,7 +693,7 @@ class TranslateWindow(translator):
             self.pixbufs[name] = loader.get_pixbuf()
 
 		## localize variables
-        translator.__init__(self, fromLang, toLang)
+        translator.__init__(self, from_lang, to_lang)
 
         ## Generate user messages
         self.msg_LANGTIP  = self.pretty_print_languages(0)
@@ -736,8 +734,8 @@ class TranslateWindow(translator):
 
         ## language label
         self.langbox = gtk.Label()
-        self.langbox.set_markup(str(self.fromLang()) + ' | ' + \
-                                str(self.toLang()) + ':  ')
+        self.langbox.set_markup(str(self.from_lang()) + ' | ' + \
+                                str(self.to_lang()) + ':  ')
         self.hbox1.pack_start(self.langbox, False, False, 1)
         self.langbox.set_tooltip_text(self.msg_LANGTIP)
 
@@ -760,8 +758,8 @@ class TranslateWindow(translator):
         self.result1.set_wrap_mode(gtk.WRAP_WORD)
         self.result1.set_indent(-12)
         self.resultbuffer1 = self.result1.get_buffer()
-        self.resultbuffer1.create_tag('fromLang', foreground = "dark red")
-        self.resultbuffer1.create_tag('toLang',foreground = "dark blue")
+        self.resultbuffer1.create_tag('from_lang', foreground = "dark red")
+        self.resultbuffer1.create_tag('to_lang',foreground = "dark blue")
         self.resultbuffer1.create_mark('end',
                                        self.resultbuffer1.get_end_iter(),
                                        False)
@@ -837,8 +835,8 @@ class TranslateWindow(translator):
             self.entry.set_text('')
             return
         elif 'SWAP' in result or 'CHANGE' in result:
-            self.langbox.set_markup(self.fromLang() + ' | ' +
-                                    self.toLang() + ':  ')
+            self.langbox.set_markup(self.from_lang() + ' | ' +
+                                    self.to_lang() + ':  ')
             if 'SWAP' in result:
                 self.entry.set_text(self.text())
             elif 'CHANGE' in result:
@@ -867,35 +865,35 @@ class TranslateWindow(translator):
             print 'Error:', repr(self._error)
             if str(self._error[1]) == 'invalid translation language pair':
                 buf.insert(buf.get_end_iter(), str(self._error[1]))
-                self.fromLang('auto')
-        fromLangTemp = self.fromLang()
-        if fromLangTemp == 'auto':
-            fromLangTemp = self.detect_lang()
+                self.from_lang('auto')
+        from_langTemp = self.from_lang()
+        if from_langTemp == 'auto':
+            from_langTemp = self.detect_lang()
         translation = self.result
         self.modal_message()
-        self.langbox.set_markup(self.fromLang() + ' | ' +
-                                self.toLang() + ':  ')
+        self.langbox.set_markup(self.from_lang() + ' | ' +
+                                self.to_lang() + ':  ')
         if translation == '':
             return
 
-        # Setting marks to apply fromLang and toLang color tags
-        buf.insert(buf.get_end_iter(), '%s:' % (fromLangTemp,))
+        # Setting marks to apply from_lang and to_lang color tags
+        buf.insert(buf.get_end_iter(), '%s:' % (from_langTemp,))
         front = buf.get_iter_at_mark(buf.get_insert())
         front.backward_word_start()
         back = buf.get_iter_at_mark(buf.get_insert())
-        buf.apply_tag_by_name('fromLang', front, back)
+        buf.apply_tag_by_name('from_lang', front, back)
         self.result1.scroll_mark_onscreen(buf.get_mark('end'))
 
         buf.insert(buf.get_end_iter(), ' %s\n  %s:' % (self.entry.get_text(),
-                                                       self.toLang()))
+                                                       self.to_lang()))
         front = buf.get_iter_at_mark(buf.get_insert())
         front.backward_word_start()
         back = buf.get_iter_at_mark(buf.get_insert())
-        buf.apply_tag_by_name('toLang', front, back)
+        buf.apply_tag_by_name('to_lang', front, back)
         buf.insert(buf.get_end_iter(), ' %s' % (translation,))
         self.result1.scroll_mark_onscreen(buf.get_mark('end'))
-        print "%s: %s\n  %s: %s" % (fromLangTemp, self.entry.get_text(),
-                                    self.toLang(), translation)
+        print "%s: %s\n  %s: %s" % (from_langTemp, self.entry.get_text(),
+                                    self.to_lang(), translation)
 
         try:
             self.clipboard
@@ -945,7 +943,7 @@ def main():
         while True:
             t.text('')
             while t.text() == '':
-                stringLang = t.fromLang() + "|" + t.toLang() + ": "
+                stringLang = t.from_lang() + "|" + t.to_lang() + ": "
                 try:
                     result = t.text(raw_input(stringLang))
                     if None == result:
@@ -958,7 +956,7 @@ def main():
                     sys.exit()
             if t.translate():
                 if t.result != '':
-                    if t.fromLang() == 'auto':
+                    if t.from_lang() == 'auto':
                         l = t.detect_lang()
                         for k, v in t.dictLang.items():
                             if v == l:
