@@ -590,7 +590,7 @@ class translator:
                 from_lang_temp = ''
             else:
                 from_lang_temp = self._from_lang
-            langpair = '%s|%s' % (from_langTemp, self._to_lang)
+            langpair = '%s|%s' % (from_lang_temp, self._to_lang)
             urldata = urllib.urlencode({'v': 1.0,
                                         'q': self._text,
                                         'langpair': langpair
