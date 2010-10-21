@@ -593,7 +593,7 @@ class translator:
             langpair = '%s|%s' % (from_lang_temp, self._to_lang)
             urldata = urllib.urlencode({'v': 1.0,
                                         'q': self._text,
-                                        'langpair': langpair
+                                        'langpair': langpair,
                                        })
             url = 'http://ajax.googleapis.com/ajax/services/language/translate?%s' % \
                 (urldata,)
@@ -613,7 +613,7 @@ class translator:
                     if self.from_lang() != 'auto':
                         self.swapLang()
                         print "Reversing translation direction..."
-                        translation = self.translate()
+                        self.translate()
         # If 'result' is empty (pretty generic error) handle exception.
         except TypeError, e:
             self._error = ('No translation available', e)
