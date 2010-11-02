@@ -345,20 +345,17 @@ def clipboard_get():
 
 class translator:
     '''Abstraction of the Google Translate RESTful API'''
-
     dictLang = {'Detect Language': 'auto',
                 'Afrikaans': 'af',
                 'Albanian': 'sq',
                 'Arabic': 'ar',
-                'Armenian': 'hy',
-                'Azerbaijani': 'az',
                 'Basque': 'eu',
                 'Belarusian': 'be',
                 'Bulgarian': 'bg',
                 'Catalan': 'ca',
                 'Chinese': 'zh-CN',
-                'Chinese (Simplified)': 'zh-CN',
-                'Chinese (Traditional)': 'zh-TW',
+                'Chinese Simplified': 'zh-CN',
+                'Chinese Traditional': 'zh-TW',
                 'Croatian': 'hr',
                 'Czech': 'cs',
                 'Danish': 'da',
@@ -370,7 +367,6 @@ class translator:
                 'French': 'fr',
                 'Gaelic': 'ga',
                 'Galician': 'gl',
-                'Georgian': 'ka',
                 'German': 'de',
                 'Greek': 'el',
                 'Haitian Creole': 'ht',
@@ -403,7 +399,6 @@ class translator:
                 'Thai': 'th',
                 'Turkish': 'tr',
                 'Ukrainian': 'uk',
-                'Urdu': 'ur',
                 'Vietnamese': 'vi',
                 'Welsh': 'cy',
                 'Yiddish': 'yi',
@@ -433,32 +428,19 @@ class translator:
         headers = {'User-Agent': 'Traduisons/%s' % (msg_VERSION,)}
         req = urllib2.Request('http://translate.google.com', None, headers)
         resp = urllib2.urlopen(req).read()
-        # namelist_regex should match Capitalized list of languages names:
-        # "English, French, Klingon, Etc...."
-        namelist_regex = '<meta name=description content="Google&#39;s free online language translation service instantly translates text and web pages. This translator supports: (.*?)">'
-        m = re.search(namelist_regex, resp)
-        d = {}
-        if m:
-            names = m.group(1).split(', ')
-            for name in names:
-                # Match abbreviated language code to language name from m
-                code_regex = '<option  value="([^"]+)">%s[^<]*</option>'
-                n = re.search(code_regex % (name,), resp)
-                if n:
-                    d[name] = n.group(1)
-                else:
-                    # If no match found, just abort. Things are too messy
-                    return False
+        regex = r'^\s+<td>([^<]*)</td>\n\s+<td><code>([^<]*)</code></td>'
+        name_code = re.findall(regex, resp, 8)
+        if name_code != []:
+            name_code = dict(name_code)
             # These aren't listed, but are expected by users
-            for k, v in [('Detect Language', 'auto'),
-                         ('Gaelic', 'ga'),
-                         ('Chinese (Traditional)', 'zh-TW'),
-                         ('Chinese (Simplified)', 'zh-CN')]:
-                d[k] = v
+            name_code.update([('Detect Language', 'auto'),
+                             ('Chinese', 'zh-CN'),
+                             ('Gaelic', 'ga'),
+                             ('Korean', 'ko')])
             # Remove any default languages that were not found
             for k in self.dictLang:
-                if not d.has_key(k): print k, ': Unavailable'
-            self.dictLang = d
+                if not name_code.has_key(k): print k, ': Unavailable'
+            self.dictLang = name_code
         else:
             print 'Unable to update_languages'
         return False
