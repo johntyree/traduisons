@@ -22,11 +22,10 @@
 import sys
 import os
 
-try:
+if '__file__' in dir():
     sys.path.insert(0, (os.path.realpath(os.path.join(__file__, '..', '..'))))
-    print sys.path
-except NameError, e:
-    pass
+    #print sys.path
 
 import traduisons as t
+
 t.main()
