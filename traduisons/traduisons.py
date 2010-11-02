@@ -449,15 +449,17 @@ class translator:
     def pretty_print_languages(self, right_justify = True):
         '''
         Return a string of pretty-printed, newline-delimited languages in
-        the format Name : code
+        the format Name : code. "Detect Language : auto" is presented first.
         '''
-        l = []
+        d = dict(self.dictLang) # force deep copy
+        d.pop('Detect Language')
+        l = ['Detect Language: auto']
         width = 0
         if right_justify:
-            width = max([len(x) for x in self.dictLang.keys()])
-        for item in sorted(self.dictLang.keys()):
-            line = ''.join(["%", str(width), 's : %s']) % \
-                (item, self.dictLang[item])
+            width = max([len(x) for x in d.keys()])
+        for item in sorted(d.keys()):
+            line = ''.join(["%", str(width), 's: %s']) % \
+                (item, d[item])
             l.append(line)
         return '\n'.join(l)
 
