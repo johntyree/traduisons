@@ -403,6 +403,7 @@ class translator:
                 'Welsh': 'cy',
                 'Yiddish': 'yi',
                 }
+    headers = {'User-Agent': 'Traduisons/%s' % (msg_VERSION,)}
 
     def __init__(self, from_lang = 'auto', to_lang = 'en', start_text = ''):
         if not self.from_lang(from_lang): self.from_lang('auto')
@@ -424,9 +425,9 @@ class translator:
         Naively try to determine if new languages are available by scraping
         http://translate.google.com
         '''
-
-        headers = {'User-Agent': 'Traduisons/%s' % (msg_VERSION,)}
-        req = urllib2.Request('http://translate.google.com', None, headers)
+        headers = self.headers
+        url = 'http://code.google.com/apis/language/translate/v2/using_rest.html'
+        req = urllib2.Request(url, None, headers)
         resp = urllib2.urlopen(req).read()
         regex = r'^\s+<td>([^<]*)</td>\n\s+<td><code>([^<]*)</code></td>'
         name_code = re.findall(regex, resp, 8)
@@ -551,7 +552,7 @@ class translator:
         urldata = urllib.urlencode({'v': 1.0, 'q': self._text})
         url = 'http://ajax.googleapis.com/ajax/services/language/detect?%s' % \
                 (urldata,)
-        headers = {'User-Agent': 'Traduisons/%s' % (msg_VERSION,)}
+        headers = self.headers
         req = urllib2.Request(url, None, headers)
         response = urllib2.urlopen(req).read()
         result = json.loads(response)
@@ -579,7 +580,7 @@ class translator:
                                        })
             url = 'http://ajax.googleapis.com/ajax/services/language/translate?%s' % \
                 (urldata,)
-            headers = {'User-Agent': 'Traduisons/%s' % (msg_VERSION,)}
+            headers = self.headers
             req = urllib2.Request(url, None, headers)
             response = urllib2.urlopen(req).read()
             result = json.loads(response)
