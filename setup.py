@@ -18,6 +18,7 @@ if os.path.isfile(CHANGELOG_WIKI):
 Py2exeCommand = None
 py2exe_args = {}
 cmdclass_dict = {}
+icon_file = None
 
 if 'py2exe' in sys.argv:
     # For side effects!
@@ -60,4 +61,5 @@ core.setup(
     **py2exe_args
 )
 
-os.unlink(icon_file)
+if icon_file is not None:
+    os.unlink(icon_file)
