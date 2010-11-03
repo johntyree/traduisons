@@ -565,7 +565,7 @@ class translator:
         return result['responseData']['language']
 
     def translate(self):
-        '''Return translated text from from_lang to to_lang.'''
+        '''Return true if able to set self.result to translated text.'''
         self.result = ''
         if self._text == '':
             return True
@@ -599,6 +599,7 @@ class translator:
                         self.swapLang()
                         print "Reversing translation direction..."
                         self.translate()
+                        translation = self.result
         # If 'result' is empty (pretty generic error) handle exception.
         except TypeError, e:
             self._error = ('No translation available', e)
