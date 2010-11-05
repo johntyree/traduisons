@@ -416,8 +416,14 @@ class translator:
             self.msg_LATEST
         except AttributeError:
             url = 'http://traduisons.googlecode.com/svn/trunk/LATEST-IS'
-            ver = urllib2.urlopen(url).read().strip()
-            self.msg_LATEST = version.StrictVersion(ver)
+            try:
+                ver = urllib2.urlopen(url).read().strip()
+            except urllib2.HTTPError:
+                return True
+            try:
+                self.msg_LATEST = version.StrictVersion(ver)
+            except ValueError:
+                pass
         return msg_VERSION >= self.msg_LATEST
 
     def update_languages(self):
