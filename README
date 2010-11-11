@@ -28,5 +28,3 @@ in your system path. For example:
 
     ln -s /usr/lib/python2.6/site-packages/traduisons/traduisons.py \
         /usr/local/bin/traduisons
-
-
