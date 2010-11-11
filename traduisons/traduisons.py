@@ -600,7 +600,11 @@ class translator:
             translation = result['responseData']['translatedText']
             translation = self._unquotehtml(translation)
             if translation.lower() == self._text.lower():
-                if self.detect_lang() == self.to_lang():
+                detected_lang = self.detect_lang()
+                # Prefer Dutch over Afrikaans
+                if detected_lang == 'af':
+                    detected_lang = 'nl'
+                if detected_lang == self.to_lang():
                     if self.from_lang() != 'auto':
                         self.swapLang()
                         print "Reversing translation direction..."
