@@ -480,7 +480,7 @@ class translator:
             else:
                 ## Check language name
                 self._to_lang = self.dictLang.get(string.capitalize(l),
-                                                 self._to_lang)
+                                                  self._to_lang)
         return self._to_lang
 
     def from_lang(self, l = None):
@@ -492,7 +492,7 @@ class translator:
             else:
                 ## Check language name
                 self._from_lang = self.dictLang.get(string.capitalize(l),
-                                                   self._from_lang)
+                                                    self._from_lang)
         return self._from_lang
 
     def swapLang(self):
@@ -856,7 +856,8 @@ class TranslateWindow(translator):
         if not self.translate():
             print 'Error:', repr(self._error)
             if str(self._error[1]) == 'invalid translation language pair':
-                buf.insert(buf.get_end_iter(), str(self._error[1]))
+                buf.insert(buf.get_end_iter(),
+                           str(self._error[1]).capitalize())
                 self.from_lang('auto')
         from_langTemp = self.from_lang()
         if from_langTemp == 'auto':
