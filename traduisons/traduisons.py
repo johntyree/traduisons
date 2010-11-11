@@ -554,7 +554,8 @@ class translator:
 
     def detect_lang(self):
         '''
-        Return the guessed two letter code corresponding to translation
+        Return a tuple containing a two letter string, a boolean
+        "isReliable", and a confidence float corresponding to translation
         text.
         '''
         urldata = urllib.urlencode({'v': 1.0, 'q': self._text})
@@ -567,8 +568,12 @@ class translator:
         if result['responseStatus'] != 200:
             self._error = ('Unable to detect language',
                            Exception(result['responseDetails']))
-            return False
-        return result['responseData']['language']
+            result['responseData'] = {'language': '',
+                                      'isReliable': False,
+                                      'confidence': 0}
+        return (result['responseData']['language'],
+                result['responseData']['isReliable'],
+                result['responseData']['confidence'])
 
     def translate(self):
         '''Return true if able to set self.result to translated text.'''
@@ -602,9 +607,11 @@ class translator:
             if translation.lower() == self._text.lower():
                 detected_lang = self.detect_lang()
                 # Prefer Dutch over Afrikaans
-                if detected_lang == 'af':
-                    detected_lang = 'nl'
-                if detected_lang == self.to_lang():
+                if detected_lang[0] == 'af' and detected_lang[1] == False:
+                    detected_lang[0] = 'nl'
+                    detected_lang[1] = False
+                    detected_lang[2] = 0
+                if detected_lang[0] == self.to_lang():
                     if self.from_lang() != 'auto':
                         self.swapLang()
                         print "Reversing translation direction..."
@@ -865,7 +872,7 @@ class TranslateWindow(translator):
                 self.from_lang('auto')
         from_langTemp = self.from_lang()
         if from_langTemp == 'auto':
-            from_langTemp = self.detect_lang()
+            from_langTemp = self.detect_lang()[0]
         translation = self.result
         self.modal_message()
         self.langbox.set_markup(self.from_lang() + ' | ' +
@@ -954,7 +961,7 @@ def main():
             if t.translate():
                 if t.result != '':
                     if t.from_lang() == 'auto':
-                        l = t.detect_lang()
+                        l = t.detect_lang()[0]
                         for k, v in t.dictLang.items():
                             if v == l:
                                 print k, '-', v
