@@ -15,16 +15,9 @@ characters such as '`/`' and '`.`'.
 
 Internet access is required to use Traduisons!.
 
-
 INSTALLATION
 
 As of version 0.4.1, traduisons is distributed as a standard python package. To
 install it, unzip and run
 
     python setup.py install
-
-To avoid having to type the full path every time, place a link to traduisons.py
-in your system path. For example:
-
-    ln -s /usr/lib/python2.6/site-packages/traduisons/traduisons.py \
-        /usr/local/bin/traduisons
