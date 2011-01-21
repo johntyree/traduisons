@@ -25,19 +25,8 @@
 """
 
 import base64
-# In python <= 2.5, standard 'json' is not included
-try:
-    import json
-except(ImportError):
-    import simplejson as json
-import os
-import re
-import string
 import sys
 import threading
-import urllib
-import urllib2
-from distutils import version
 
 import traduisons
 
@@ -59,7 +48,6 @@ es|          Change starting Language to Spanish:
 
 Please visit <http://code.google.com/p/traduisons/wiki> for help."""
 
-appPath = os.path.dirname(__file__)
 start_text = ""
 from_lang = "auto"
 to_lang = "en"
@@ -366,8 +354,6 @@ class TranslateWindow(traduisons.translator):
         pass
 
     def __init__(self, from_lang = 'auto', to_lang = 'en'):
-        #iconfile = os.path.join(appPath, "data", "traduisons_icon.ico")
-        #traduisons_icon = gtk.gdk.pixbuf_new_from_file(iconfile)
         self.pixbufs = {}
         for form, name in (('ico', 'traduisons_icon'),
                            ('png', 'google_logo')):
