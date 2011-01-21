@@ -41,17 +41,6 @@ from distutils import version
 
 import traduisons
 
-msg_VERSION = version.StrictVersion('0.4.3')
-msg_DOWNLOAD = 'http://code.google.com/p/traduisons/downloads/list'
-msg_LICENSE = """Traduisons! %s
-http://traduisons.googlecode.com
-
-Copyright (C) 201 John E Tyree <johntyree@gmail.com>
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-""" % (msg_VERSION,)
-msg_BUGS = "Bugs, suggestions at <http://code.google.com/p/traduisons/issues/list>"
 msg_USAGE = """Usage: %s [OPTION]...
 Translate a string between languages using Google Translate.
 
@@ -508,7 +497,7 @@ class TranslateWindow(traduisons.translator):
             print self.msg_MODAL
             self.modal_message(self.msg_MODAL)
             tooltip = 'Get Traduisons! %s\n%s' % (self.msg_LATEST,
-                                                  msg_DOWNLOAD)
+                                                  traduisons.msg_DOWNLOAD)
             gobject.idle_add(self.statusBar1.set_tooltip_text, tooltip)
         return
 
@@ -538,7 +527,7 @@ class TranslateWindow(traduisons.translator):
                 self.entry.set_text('')
                 return
         elif 'VERSION' in result:
-            ver_text = '\nTraduisons! - %s' % (msg_VERSION,)
+            ver_text = '\nTraduisons! - %s' % (traduisons.msg_VERSION,)
             buf.insert(buf.get_end_iter(), ver_text)
             self.result1.scroll_mark_onscreen(buf.get_mark('end'))
             self.entry.set_text('')
@@ -612,10 +601,10 @@ def main():
         elif arg in ('--no-gui', '-n', "/n"):
             guiflag = False
         elif arg in ("--version", "-v", "/v"):
-            print msg_LICENSE
+            print traduisons.msg_LICENSE
             sys.exit()
         else:
-            print msg_USAGE, "\n", msg_BUGS
+            print msg_USAGE, "\n", traduisons.msg_BUGS
             sys.exit()
 
 
@@ -624,11 +613,11 @@ def main():
         TranslateWindow()
         gtk.main()
     else:
-        print "\nTraduisons! - %s\npowered by Google ..." % (msg_VERSION,)
+        print "\nTraduisons! - %s\npowered by Google ..." % (traduisons.msg_VERSION,)
         t = traduisons.translator()
         if not t.is_latest():
             print "Version %s now available! %s" % (t.msg_LATEST,
-                                                    msg_DOWNLOAD)
+                                                    traduisons.msg_DOWNLOAD)
 
         # This thread doesn't return until after main dies
         # Perhaps there is a better to avoid the blocking behavior
