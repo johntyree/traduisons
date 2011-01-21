@@ -59,7 +59,7 @@ core.setup(
     cmdclass = cmdclass_dict,
     scripts = ['bin/traduisons'],
     **py2exe_args
-)
+    )
 
 if icon_file is not None:
     os.unlink(icon_file)
