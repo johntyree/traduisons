@@ -685,7 +685,7 @@ class TranslateWindow(translator):
         pass
 
     def __init__(self, from_lang = 'auto', to_lang = 'en'):
-        #iconfile = os.path.join(appPath, "data", "traduisons_icon.ico")
+        #iconfile = os.path.join(appPath, "data", "traduisons.ico")
         #traduisons_icon = gtk.gdk.pixbuf_new_from_file(iconfile)
         self.pixbufs = {}
         for form, name in (('ico', 'traduisons_icon'),
