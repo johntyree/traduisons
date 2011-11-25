@@ -464,6 +464,6 @@ def main():
                             print k, '-', v
                 print t.result
         else:
-            raise t.result[1]
+            raise t._error[1]
 
 if __name__ == '__main__': main()
