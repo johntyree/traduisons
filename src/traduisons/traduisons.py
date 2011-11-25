@@ -137,10 +137,23 @@ class translator:
                 }
     headers = {'User-Agent': 'Traduisons/%s' % (msg_VERSION,)}
 
+    class urlopener(urllib.URLopener):
+        def __init__(self, *args, **kwargs):
+            urllib.URLopener.__init__(self)
+            self.addheader('User-Agent', "Traduisons/%s" % (msg_VERSION,))
+        def urlread(self, url):
+            try:
+                txt = self.open(url).read().strip()
+            except IOError, e:
+                e.reason = e.strerror
+                raise e
+            return txt
+
     def __init__(self, from_lang = 'auto', to_lang = 'en', start_text = ''):
         if not self.from_lang(from_lang): self.from_lang('auto')
         if not self.to_lang(to_lang): self.to_lang('en')
         self._text = start_text
+        self.urlread = self.urlopener().urlread
 
     def is_latest(self):
         '''Phone home to check if we are up to date.'''
@@ -354,9 +367,7 @@ class translator:
                                        })
             url = 'http://ajax.googleapis.com/ajax/services/language/translate?%s' % \
                 (urldata,)
-            headers = self.headers
-            req = urllib2.Request(url, None, headers)
-            response = urllib2.urlopen(req).read()
+            response = self.urlread(url)
             result = json.loads(response)
             if result['responseStatus'] != 200:
                 self._error = ('Unable to translate',
@@ -382,11 +393,8 @@ class translator:
         except TypeError, e:
             self._error = ('No translation available', e)
             return False
-        except urllib2.HTTPError, e:
-            self._error = ('urllib2.HTTPError: Check network connection', e)
-            return False
-        ## If the url ever changes...
-        except urllib2.URLError, e:
+        # If the url ever changes...
+        except IOError, e:
             self._error = (e.reason, e)
             return False
         finally:
