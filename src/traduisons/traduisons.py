@@ -413,3 +413,49 @@ class translator:
 
 ## ------*------ End TRANSLATOR ------*------
 
+def main():
+    for arg in sys.argv[1:]:
+        if arg in ('--help', '-h', "/?"):
+            print msg_USAGE, "\n", msg_HELP
+            sys.exit()
+        elif arg in ('--no-gui', '-n', "/n"):
+            guiflag = False
+        elif arg in ("--version", "-v", "/v"):
+            print msg_LICENSE
+            sys.exit()
+        else:
+            print msg_USAGE, "\n", msg_BUGS
+            sys.exit()
+
+    ## Start traduisons!
+    print "\nTraduisons! - %s\npowered by Google ..." % (msg_VERSION,)
+    t = translator()
+    if not t.is_latest():
+        print "Version %s now available! %s" % (t.msg_LATEST,
+                                                msg_DOWNLOAD)
+    while True:
+        t.text('')
+        while t.text() == '':
+            stringLang = t.from_lang() + "|" + t.to_lang() + ": "
+            try:
+                result = t.text(raw_input(stringLang))
+                if result is False:
+                   break
+                elif result[1] == 'HELP':
+                    print msg_HELP
+                    print t.pretty_print_languages()
+            except EOFError:
+                print
+                sys.exit()
+        if t.translate():
+            if t.result != '':
+                if t.from_lang() == 'auto':
+                    l = t.detect_lang()[0]
+                    for k, v in t.dictLang.items():
+                        if v == l:
+                            print k, '-', v
+                print t.result
+        else:
+            raise t.result[1]
+
+if __name__ == '__main__': main()
