@@ -57,14 +57,16 @@ core.setup(
     author_email = 'johntyree@gmail.com',
     url = 'http://traduisons.googlecode.com',
     license = open(LICENSE).read(),
-    packages = ['traduisons'],
+    packages = ['src/traduisons'],
     cmdclass = cmdclass_dict,
     scripts = ['data/bin/traduisons'],
     data_files = [('share/icons/hicolor/256x256',
-                   'data/share/icons/hicolor/256x256/traduisons.png'),
+                  ['data/share/icons/hicolor/256x256/traduisons.png']),
                   ('share/applications',
-                   'data/share/applications/traduisons.desktop'),
-                 ],
+                  ['data/share/applications/traduisons.desktop']),
+                  ('doc/%s-%s' % ('traduisons', msg_VERSION),
+                   ['README', 'CHANGELOG', 'LICENSE',])
+                  ],
     **py2exe_args
     )
 
