@@ -56,7 +56,7 @@ core.setup(
     author = 'John Tyree',
     author_email = 'johntyree@gmail.com',
     url = 'http://traduisons.googlecode.com',
-    license = open(LICENSE).read(),
+    license = 'GPLv3',
     packages = ['src/traduisons'],
     cmdclass = cmdclass_dict,
     scripts = ['data/bin/traduisons'],
