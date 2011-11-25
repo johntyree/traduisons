@@ -324,7 +324,7 @@ class translator:
         return response
 
     def translate(self):
-        '''Return true if able to set self.result to translated text else,
+        '''Return true if able to set self.result to translated text, else
         False.'''
         self.result = ''
         if self._text == '':

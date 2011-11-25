@@ -40,6 +40,7 @@ if 'py2exe' in sys.argv:
     icon_file = f.name
     f.close()
     py2exe_args = {'windows':
+<<<<<<< HEAD
                        [{"script": "data/bin/traduisons",
                          "icon_resources":
                              [(1, icon_file)],
