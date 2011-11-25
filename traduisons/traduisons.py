@@ -1,5 +1,6 @@
 #! /usr/bin/env python
-
+# coding: utf8
+#
 # Copyright 2011 John E Tyree <johntyree@gmail.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -21,7 +22,7 @@
     Traduisons!
     http://traduisons.googlecode.com
 
-    Python bindings to Google Translate RESTful API
+    Python bindings to Bing!(tm) Translator API
 """
 
 import base64
@@ -36,10 +37,11 @@ import re
 import string
 import sys
 import urllib
+import ast
+from codecs import BOM_UTF8
 from distutils import version
 
-
-msg_VERSION = version.StrictVersion('0.4.4')
+msg_VERSION = version.StrictVersion('0.5.0')
 msg_DOWNLOAD = 'http://code.google.com/p/traduisons/downloads/list'
 msg_LICENSE = """Traduisons! %s
 http://traduisons.googlecode.com
@@ -65,6 +67,7 @@ start_text = ""
 from_lang = "auto"
 to_lang = "en"
 
+
 def echo(f):
     '''Print out f.__name__ BEGIN and f.__name__ END before and after f is called.'''
     def newfunc(*args, **kwargs):
@@ -74,70 +77,51 @@ def echo(f):
     return newfunc
 
 class translator:
-    '''Abstraction of the Google Translate RESTful API'''
+    '''Abstraction of the Bing! Translator API'''
     dictLang = {'Detect Language': 'auto',
-                'Afrikaans': 'af',
-                'Albanian': 'sq',
                 'Arabic': 'ar',
-                'Basque': 'eu',
-                'Belarusian': 'be',
                 'Bulgarian': 'bg',
                 'Catalan': 'ca',
-                'Chinese': 'zh-CN',
-                'Chinese Simplified': 'zh-CN',
-                'Chinese Traditional': 'zh-TW',
-                'Croatian': 'hr',
+                'Chinese Simplified': 'zh-CHS',
+                'Chinese Traditional': 'zh-CHT',
                 'Czech': 'cs',
                 'Danish': 'da',
                 'Dutch': 'nl',
                 'English': 'en',
                 'Estonian': 'et',
-                'Filipino': 'tl',
                 'Finnish': 'fi',
                 'French': 'fr',
-                'Gaelic': 'ga',
-                'Galician': 'gl',
                 'German': 'de',
                 'Greek': 'el',
                 'Haitian Creole': 'ht',
-                'Hebrew': 'iw',
+                'Hebrew': 'he',
                 'Hindi': 'hi',
                 'Hungarian': 'hu',
-                'Icelandic': 'is',
                 'Indonesian': 'id',
-                'Irish': 'ga',
                 'Italian': 'it',
                 'Japanese': 'ja',
                 'Korean': 'ko',
                 'Latvian': 'lv',
                 'Lithuanian': 'lt',
-                'Macedonian': 'mk',
-                'Malay': 'ms',
-                'Maltese': 'mt',
                 'Norwegian': 'no',
-                'Persian': 'fa',
                 'Polish': 'pl',
                 'Portuguese': 'pt',
                 'Romanian': 'ro',
                 'Russian': 'ru',
-                'Serbian': 'sr',
                 'Slovak': 'sk',
                 'Slovenian': 'sl',
                 'Spanish': 'es',
-                'Swahili': 'sw',
                 'Swedish': 'sv',
                 'Thai': 'th',
                 'Turkish': 'tr',
                 'Ukrainian': 'uk',
-                'Vietnamese': 'vi',
-                'Welsh': 'cy',
-                'Yiddish': 'yi',
-                }
+                'Vietnamese': 'vi'
+               }
 
     class urlopener(urllib.URLopener):
         def __init__(self, *args, **kwargs):
             urllib.URLopener.__init__(self)
-            self.addheader('User-Agent', "Traduisons/%s" % (msg_VERSION,))
+#             self.addheader('User-Agent', "Traduisons/%s" % (msg_VERSION,))
         def urlread(self, url):
             try:
                 txt = self.open(url).read().strip()
@@ -170,23 +154,29 @@ class translator:
 
     def update_languages(self, echo = False):
         '''
-        Naively try to determine if new languages are available by scraping
-        http://translate.google.com.
         If echo is false, return True if (we think) we succeeded, else False.
         If echo is true, return list of changes, else False.
         '''
-        url = 'http://code.google.com/apis/language/translate/v2/using_rest.html'
-        resp = self.urlread(url)
-        regex = r'^\s+<td>([^<]*)</td>\n\s+<td><code>([^<]*)</code></td>'
-        name_code = re.findall(regex, resp, 8)
+        urldata = { "appid": "2789651A5EB17D14C382C2EE5B9410617C25260E" }
+        urldatastr = urllib.urlencode(urldata)
+        url = "http://api.microsofttranslator.com/V2/Ajax.svc/GetLanguagesForTranslate?%s" % \
+                (urldatastr,)
+        response = self.urlread(url).strip(BOM_UTF8).strip('"')
+        regex = r'"([^"]+)"'
+        code = re.findall(regex, response, 8)
+        urldata = {"appid": urldata['appid'],
+                   "languageCodes":str(code).replace("'",'"'),
+                   "locale":"en"}
+        urldatastr = urllib.urlencode(urldata)
+        url = "http://api.microsofttranslator.com/V2/Ajax.svc/GetLanguageNames?%s" % \
+                (urldatastr,)
+        name = ast.literal_eval(self.urlread(url).strip(BOM_UTF8))
         changes = []
-        if name_code != []:
-            name_code = dict(name_code)
+        if name != []:
+            # Turn our new languages into a dictionary
+            name_code = dict(zip(name, code))
             # These aren't listed, but are expected by users
-            name_code.update([('Detect Language', 'auto'),
-                             ('Chinese', 'zh-CN'),
-                             ('Gaelic', 'ga'),
-                             ('Korean', 'ko')])
+            name_code.update([('Detect Language', 'auto')])
             # Determine changes
             all_langs = set(self.dictLang.keys() + name_code.keys())
             for k in all_langs:
@@ -322,24 +312,16 @@ class translator:
 
     def detect_lang(self):
         '''
-        Return a tuple containing a two letter string, a boolean
-        "isReliable", and a confidence float corresponding to translation
-        text.
+        Return the best guess language of self.text()"
         '''
-        urldata = urllib.urlencode({'v': 1.0, 'q': self._text})
-        url = 'http://ajax.googleapis.com/ajax/services/language/detect?%s' % \
-                (urldata,)
-        response = self.urlread(url)
-        result = json.loads(response)
-        if result['responseStatus'] != 200:
-            self._error = ('Unable to detect language',
-                           Exception(result['responseDetails']))
-            result['responseData'] = {'language': '',
-                                      'isReliable': False,
-                                      'confidence': 0}
-        return (result['responseData']['language'],
-                result['responseData']['isReliable'],
-                result['responseData']['confidence'])
+        urldata = { "appid": "2789651A5EB17D14C382C2EE5B9410617C25260E",
+                   "text": self._text,
+                  }
+        urldatastr = urllib.urlencode(urldata)
+        url = "http://api.microsofttranslator.com/V2/Ajax.svc/Detect?%s" % \
+                (urldatastr,)
+        response = self.urlread(url).strip(BOM_UTF8).strip('"')
+        return response
 
     def translate(self):
         '''Return true if able to set self.result to translated text else,
@@ -350,38 +332,27 @@ class translator:
         try:
             # 'auto' needs to be set to blank now
             if self._from_lang == 'auto':
-                from_lang_temp = ''
+                from_lang_temp = self.detect_lang()
             else:
                 from_lang_temp = self._from_lang
-            langpair = '%s|%s' % (from_lang_temp, self._to_lang)
-            urldata = urllib.urlencode({'v': 1.0,
-                                        'q': self._text,
-                                        'langpair': langpair,
+            urldata = urllib.urlencode({"version": "2.2",
+                                        "appid": "2789651A5EB17D14C382C2EE5B9410617C25260E",
+                                        "sources": "translation",
+                                        "translation.sourcelanguage": from_lang_temp,
+                                        "translation.targetlanguage": self._to_lang,
+                                        "query": self._text,
                                        })
-            url = 'http://ajax.googleapis.com/ajax/services/language/translate?%s' % \
+            url = 'http://api.bing.net/json.aspx?%s' % \
                 (urldata,)
             response = self.urlread(url)
-            result = json.loads(response)
-            if result['responseStatus'] != 200:
+            result = json.loads(response)['SearchResponse']
+            if 'Errors' in result:
                 self._error = ('Unable to translate',
-                               Exception(result['responseDetails']))
+                               Exception(result['SearchResponse']))
                 translation = ''
                 return False
-            translation = result['responseData']['translatedText']
+            translation = result['Translation']['Results'][0]['TranslatedTerm']
             translation = self._unquotehtml(translation)
-            if translation.lower() == self._text.lower():
-                detected_lang = self.detect_lang()
-                # Prefer Dutch over Afrikaans
-                if detected_lang[0] == 'af' and detected_lang[1] == False:
-                    detected_lang[0] = 'nl'
-                    detected_lang[1] = False
-                    detected_lang[2] = 0
-                if detected_lang[0] == self.to_lang():
-                    if self.from_lang() != 'auto':
-                        self.swapLang()
-                        print "Reversing translation direction..."
-                        self.translate()
-                        translation = self.result
         # If 'result' is empty (pretty generic error) handle exception.
         except TypeError, e:
             self._error = ('No translation available', e)
@@ -429,12 +400,13 @@ def main():
             sys.exit()
 
     ## Start traduisons!
-    print "\nTraduisons! - %s\npowered by Google ..." % (msg_VERSION,)
+    print "\nTraduisons! - %s\npowered by Bing!(tm) ..." % (msg_VERSION,)
     t = translator()
     if not t.is_latest():
         print "Version %s now available! %s" % (t.msg_LATEST,
                                                 msg_DOWNLOAD)
-    print t.update_languages(True)
+    c = t.update_languages(True)
+    for x in c: print x
     while True:
         t.text('')
         while t.text() == '':
@@ -452,7 +424,7 @@ def main():
         if t.translate():
             if t.result != '':
                 if t.from_lang() == 'auto':
-                    l = t.detect_lang()[0]
+                    l = t.detect_lang()
                     for k, v in t.dictLang.items():
                         if v == l:
                             print k, '-', v

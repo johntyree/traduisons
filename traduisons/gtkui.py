@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+# coding: utf-8
 
 # Copyright 2011 John E Tyree <johntyree@gmail.com>
 #
@@ -21,7 +22,7 @@
     Traduisons!
     http://traduisons.googlecode.com
 
-    Python bindings to Google Translate RESTful API
+    Python bindings to Bing! Translate RESTful API
 """
 
 import base64
@@ -31,7 +32,7 @@ import threading
 import traduisons
 
 msg_USAGE = """Usage: %s [OPTION]...
-Translate a string between languages using Google Translate.
+Translate a string between languages using Bing! Translate.
 
 OPTIONS
   -h, --help            Show help and basic usage.
@@ -85,7 +86,30 @@ Lv4JTq5zEmfrBjYTwMRAWFQKhQ1X9HzRNKFeRAsrmncUNcQrFKG2ucrAOgOOF8BmopCvI+iTYpLP
 T475EBgCfJevPCieoyCxIxP2vQIZx7MQ0FKv9/VdELRc/DlP5UZwuIqgYNHSjYmBtzvpoOqSXI9k
 9eWd833FnJ/82vPx4IV2APcDBZ+pXflkYUxhXK+BsxOb2L8eiFLrHyq3ZI1nacNBuaT+oNPBs7oZ
 fdFIDbeAhLOcUQZcrhwIGv3Mfnn4H1k+HMVwQTY1zdoelj6U/MA2ZmcBcVu0xOAazUiMqTN9Z3U1
-cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC''', },
+cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC''',
+                       'bing_logo':r'''
+iVBORw0KGgoAAAANSUhEUgAAAC0AAAAUCAYAAAAZb7T/AAAABmJLR0QAAAAAAAD5Q7t/AAAACXBI
+WXMAAABIAAAASABGyWs+AAAACXZwQWcAAAAtAAAAFACATny0AAAEBUlEQVRIx+3WW4iVVRQH8N8+
+c85kOiil5KUwKi+J3SAiIcQaKyyxG1L5UBAFRWpQzohFJBLdHJXsAtEFiiALCvMlzXQmsYsUWWHq
+g0oWGOVtysZpnDnn2z18++iMjlrZ5aU/HL6Pc/Za67/W+q+1D//j30EAs1uggKIYK0KomH/FMQ3L
+S8ZAiEEdYswKbUJUO23TP066AGIkxkliXIqpYjyuYQzEYByWY1koZOeHcHy7vwPFbu9n4VqsAw3N
+hFR9AaFLyKL59Xm2IRKdFELsjwNZDLWhu+cZa5mykeWjKRWoRBZd3juLB1flz65CMRWyrBIyNRkh
+1GEgfsVeTfU9SFdRg7GCybgAA4iIO0WfaWxeSdh+0cYdsRTK6y7su+OerliTfb7/zA2/ZSUaB9YQ
+R9M13qpRY5XiKVQqauzW2PwV1uJ7RAFRX2WX4SrB2SihTTF+TSjhaozEc3j88EpXcQvuwB604OOU
+yHl4ALOIT29oH/ayYND69jMXo404FZ3EBtyFMtZju7xVY3A7WvEk8TUxDMUTuB7fYAV2YUTyMTKd
+/wjf9iaPKkakrJ70yeCfjNtJIeZ1Cc5J2S4U1GIpcQh+TsTuxUN4B/NEW8SsrBAQajEBz2MR4cck
+x9vwLOYKWmWoqSXrfA2vYhReEcOyNIG9kv4Uj2Kvj8fmdYaG1ZGwNZG6GNPxJbJ0og5TsBvzsNmC
++kNeG1s6iR/gJczHzRiXOvoiWqvz4v4WijZgCZpwDV3LxNp8nrqR7UjPbYTWI1JZMLH6tiO1agiG
+JtIxFaAf9qeW9kTTwRX6Q7fZacXJGJYKk0oZyULAaensXqGYwvQkvRn7MJY46IigVYe5zkbhlxQ0
+OBK9fXc49shl2IWnMFkIAzU298MZCnGmfLbW4/XcJDtCHl/INXQ3HsYT5rz/o6yYloeQJ2RhqkwT
+th6W+J9BUPGmGu24T67rn1KnhuBcbMMMbBYPdTsn3dFBnz4H8Ehq350Yr1L6NEmhLBiNK1PAOXgB
+p6qmlKPikFyOhnjwUyNT9q6i1fJ7YrhcLhXciBswE1sFu3pvY2OzVLmzMVG+pvonIruxQT6a36XA
+/eR7tBNr5INVIragQ9NEvfgfjkuxRfRVj2Htea5OPqDTUrWfB031x9Be4xoMpppgltGnwmP1ThgN
+H+Y5h1hAVCjknXnq8vT7akKAWVgg1/7MKuniUR03TThxckdDiIQKsXArrpNl7wneMLu5LEjzFgcS
+Jsql8kVul5sX/1LQEyadEQvkt+B0PCMahxWidowgTMUlWIy3obrH/8hq+meQ/yEj3xQ3YRJOR638
+ztiEt9CMDk2HZPnfka5i1kpK/cgO1IoGJNLtQtwnhoq6NuZe91+zPHH8Dm+QWR0lVuQ3AAAAJXRF
+WHRkYXRlOmNyZWF0ZQAyMDExLTExLTI1VDEyOjE2OjI0KzAxOjAwTqRycQAAACV0RVh0ZGF0ZTpt
+b2RpZnkAMjAxMS0xMS0yNVQxMjoxNjoyNCswMTowMD/5ys0AAAAASUVORK5CYII='''},
                'ico': { 'traduisons_icon': r'''
 AAABAAEAMDAAAAEAIACoJQAAFgAAACgAAAAwAAAAYAAAAAEAIAAAAAAAACQAABILAAASCwAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -356,7 +380,7 @@ class TranslateWindow(traduisons.translator):
     def __init__(self, from_lang = 'auto', to_lang = 'en'):
         self.pixbufs = {}
         for form, name in (('ico', 'traduisons_icon'),
-                           ('png', 'google_logo')):
+                           ('png', 'bing_logo')):
             loader = gtk.gdk.PixbufLoader(form)
             loader.write(base64.b64decode(b64_images[form][name]))
             loader.close()
@@ -449,12 +473,13 @@ class TranslateWindow(traduisons.translator):
         self.hbox3.pack_start(self.statusBar1)
         self.hbox3.pack_start(self.statusBar2, False)
         try:
-            googleLogo = gtk.Image()
-            googleLogo.set_from_pixbuf(self.pixbufs['google_logo'])
+            serviceLogo = gtk.Image()
+            serviceLogo.set_from_pixbuf(self.pixbufs['bing_logo'])
             self.statusBar2.set_text("powered by ")
-            self.hbox3.pack_start(googleLogo, False)
+            self.hbox3.pack_start(serviceLogo, False)
         except Exception, e:
-            self.statusBar2.set_text("powered by Google ")
+            print e
+            self.statusBar2.set_text("powered by Bing! ")
         self.statusBar2.set_alignment(1, 0.5)
 
 ##  ----^---- Lower Half of window ----^----
@@ -605,7 +630,7 @@ def main():
         TranslateWindow()
         gtk.main()
     else:
-        print "\nTraduisons! - %s\npowered by Google ..." % (traduisons.msg_VERSION,)
+        print "\nTraduisons! - %s\npowered by Bing! ..." % (traduisons.msg_VERSION,)
         t = traduisons.translator()
         if not t.is_latest():
             print "Version %s now available! %s" % (t.msg_LATEST,
