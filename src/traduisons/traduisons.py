@@ -68,6 +68,7 @@ from_lang = "auto"
 to_lang = "en"
 
 def echo(f):
+    '''Print out f.__name__ BEGIN and f.__name__ END before and after f is called.'''
     def newfunc(*args, **kwargs):
         print f.__name__, "BEGIN"
         f(*args, **kwargs)
@@ -263,6 +264,21 @@ class translator:
         '''
         Get or set translation text, handling embedded directives such
         as '/' and '.'.
+        If a string is given, return a tuple containing the text to be
+        translated and a stringified code indicating what operations were
+        encoded. Available code are:
+            SWAP - Traslation direction is reversed.
+            EXIT - Program should terminate.
+            HELP - Display help information.
+            CHANGE - New translation languages have been selected.
+            VERSION - Display version information.
+            (False) - Boolean indicating no directives found.
+
+        For example (in order):
+            text('/test')  -> ('test', 'SWAP')
+            text('-v')     -> ('test', 'VERSION')
+            text('--help') -> ('test', 'HELP')
+            text('pants')  -> ('pants', False)
         '''
         if text is None:
             return self._text
@@ -320,7 +336,8 @@ class translator:
                 result['responseData']['confidence'])
 
     def translate(self):
-        '''Return true if able to set self.result to translated text.'''
+        '''Return true if able to set self.result to translated text else,
+        False.'''
         self.result = ''
         if self._text == '':
             return True
