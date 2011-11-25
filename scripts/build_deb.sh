@@ -9,11 +9,14 @@ BUILD="$CWD/build/bdist.linux-x86_64/deb"
 TMPPKG="$BUILD/pkg"
 DIST="$CWD/dist"
 PKGNAM=$(setup.py --name)
-ARCH=$(setup.py --platforms)
+#ARCH=$(setup.py --platforms)
+ARCH=i386
 VERSION=$(setup.py --version)
 RELEASE=${RELEASE:-1}
-DESC=$(setup.py --long-description)
-DEPENDS=$(setup.py --requires | sed -e :a -e '$!N;s/\n/, /;ta')
+#DESC=$(setup.py --long-description)
+DESC="TODO"
+#DEPENDS=$(setup.py --requires | sed -e :a -e '$!N;s/\n/, /;ta')
+DEPENDS="python (>= 2.5)"
 CONTACT=$(setup.py --contact)
 CONTACT_EMAIL=$(setup.py --contact-email)
 
@@ -39,18 +42,15 @@ Package: $PKGNAM
 Version: $VERSION
 Section: desktop
 Priority: optional
-Architecture: noarch
+Architecture: $ARCH
 Depends: $DEPENDS
 Installed-Size: $PKGSIZE
 Maintainer: $CONTACT <$CONTACT_EMAIL>
 Description: $DESC
 EOT
+tar cvzf "$BUILD/control.tar.gz" -C "$BUILD" "control"
 
 echo '2.0' > "$BUILD/debian-binary"
-
-for i in control debian-binary; do
-    tar cvzf "$BUILD/$i.tar.gz" -C "$BUILD" "$i"
-done
 
 ar rcv "$BUILD/package.deb" \
     "$BUILD/debian-binary" \
