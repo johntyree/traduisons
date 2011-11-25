@@ -5,7 +5,10 @@ import shutil
 import base64
 import tempfile
 from distutils import core
-from traduisons import msg_VERSION, b64_images
+
+sys.path.insert(0, (os.path.realpath('src')))
+from traduisons import msg_VERSION
+from traduisons.gtkui import b64_images
 
 README = os.path.join(os.path.dirname(__file__), 'README')
 LICENSE = os.path.join(os.path.dirname(__file__), 'LICENSE')
@@ -38,7 +41,7 @@ if 'py2exe' in sys.argv:
     icon_file = f.name
     f.close()
     py2exe_args = {'windows':
-                       [{"script": "bin/traduisons",
+                       [{"script": "data/bin/traduisons",
                          "icon_resources":
                              [(1, icon_file)],
                          }],
@@ -55,9 +58,13 @@ core.setup(
     url = 'http://traduisons.googlecode.com',
     license = open(LICENSE).read(),
     packages = ['traduisons'],
-    package_data = { 'traduisons': ['data/traduisons_icon.png']},
     cmdclass = cmdclass_dict,
-    scripts = ['bin/traduisons'],
+    scripts = ['data/bin/traduisons'],
+    data_files = [('share/icons/hicolor/256x256',
+                   'data/share/icons/hicolor/256x256/traduisons.png'),
+                  ('share/applications',
+                   'data/share/applications/traduisons.desktop'),
+                 ],
     **py2exe_args
     )
 
