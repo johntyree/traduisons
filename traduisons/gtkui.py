@@ -386,7 +386,7 @@ class TranslateWindow(traduisons.translator):
             loader.close()
             self.pixbufs[name] = loader.get_pixbuf()
 
-		## localize variables
+        ## localize variables
         traduisons.translator.__init__(self, from_lang, to_lang)
 
         ## Generate user messages
