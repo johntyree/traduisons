@@ -6,7 +6,6 @@ import base64
 import tempfile
 from distutils import core
 
-sys.path.insert(0, (os.path.realpath('src')))
 from traduisons import msg_VERSION
 from traduisons.gtkui import b64_images
 
