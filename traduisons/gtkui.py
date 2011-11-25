@@ -571,7 +571,7 @@ class TranslateWindow(traduisons.translator):
                 self.from_lang('auto')
         from_langTemp = self.from_lang()
         if from_langTemp == 'auto':
-            from_langTemp = self.detect_lang()[0]
+            from_langTemp = self.detect_lang()
         translation = self.result
         self.modal_message()
         self.langbox.set_markup(self.from_lang() + ' | ' +
