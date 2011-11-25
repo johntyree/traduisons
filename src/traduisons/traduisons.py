@@ -135,7 +135,6 @@ class translator:
                 'Welsh': 'cy',
                 'Yiddish': 'yi',
                 }
-    headers = {'User-Agent': 'Traduisons/%s' % (msg_VERSION,)}
 
     class urlopener(urllib.URLopener):
         def __init__(self, *args, **kwargs):
@@ -162,8 +161,8 @@ class translator:
         except AttributeError:
             url = 'http://traduisons.googlecode.com/svn/trunk/LATEST-IS'
             try:
-                ver = urllib2.urlopen(url).read().strip()
-            except urllib2.HTTPError:
+                ver = self.urlread(url)
+            except IOError:
                 return True
             try:
                 self.msg_LATEST = version.StrictVersion(ver)
@@ -178,10 +177,8 @@ class translator:
         If echo is false, return True if (we think) we succeeded, else False.
         If echo is true, return list of changes, else False.
         '''
-        headers = self.headers
         url = 'http://code.google.com/apis/language/translate/v2/using_rest.html'
-        req = urllib2.Request(url, None, headers)
-        resp = urllib2.urlopen(req).read()
+        resp = self.urlread(url)
         regex = r'^\s+<td>([^<]*)</td>\n\s+<td><code>([^<]*)</code></td>'
         name_code = re.findall(regex, resp, 8)
         changes = []
@@ -334,9 +331,7 @@ class translator:
         urldata = urllib.urlencode({'v': 1.0, 'q': self._text})
         url = 'http://ajax.googleapis.com/ajax/services/language/detect?%s' % \
                 (urldata,)
-        headers = self.headers
-        req = urllib2.Request(url, None, headers)
-        response = urllib2.urlopen(req).read()
+        response = self.urlread(url)
         result = json.loads(response)
         if result['responseStatus'] != 200:
             self._error = ('Unable to detect language',
