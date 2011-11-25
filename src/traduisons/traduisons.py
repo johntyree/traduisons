@@ -35,9 +35,7 @@ import os
 import re
 import string
 import sys
-import threading
 import urllib
-import urllib2
 from distutils import version
 
 
@@ -436,6 +434,7 @@ def main():
     if not t.is_latest():
         print "Version %s now available! %s" % (t.msg_LATEST,
                                                 msg_DOWNLOAD)
+    print t.update_languages(True)
     while True:
         t.text('')
         while t.text() == '':
