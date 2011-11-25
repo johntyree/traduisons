@@ -397,6 +397,7 @@ class TranslateWindow(traduisons.translator):
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_size_request(250, 95)
         self.window.set_title("Traduisons!")
+        self.window.set_role("translator")
 
         ## Try to load icon or skip
         try:
