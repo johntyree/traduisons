@@ -475,7 +475,13 @@ class TranslateWindow(traduisons.translator):
         Update language list. Check the server for a new version of
         Traduisons and notify the user.
         '''
-        self.update_languages()
+        chgs = self.update_languages(True)
+        if chgs is False:
+            print 'Unable to update_languages'
+        else:
+            for change in chgs:
+                print change
+
         self.msg_LANGTIP = self.pretty_print_languages(0)
         gobject.idle_add(self.langbox.set_tooltip_text, self.msg_LANGTIP)
         if not self.is_latest():

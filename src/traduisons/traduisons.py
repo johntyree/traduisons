@@ -426,10 +426,12 @@ class translator:
                 pass
         return msg_VERSION >= self.msg_LATEST
 
-    def update_languages(self):
+    def update_languages(self, echo = False):
         '''
         Naively try to determine if new languages are available by scraping
-        http://translate.google.com
+        http://translate.google.com.
+        If echo is false, return True if (we think) we succeeded, else False.
+        If echo is true, return list of changes, else False.
         '''
         headers = self.headers
         url = 'http://code.google.com/apis/language/translate/v2/using_rest.html'
@@ -437,6 +439,7 @@ class translator:
         resp = urllib2.urlopen(req).read()
         regex = r'^\s+<td>([^<]*)</td>\n\s+<td><code>([^<]*)</code></td>'
         name_code = re.findall(regex, resp, 8)
+        changes = []
         if name_code != []:
             name_code = dict(name_code)
             # These aren't listed, but are expected by users
@@ -444,13 +447,23 @@ class translator:
                              ('Chinese', 'zh-CN'),
                              ('Gaelic', 'ga'),
                              ('Korean', 'ko')])
-            # Remove any default languages that were not found
-            for k in self.dictLang:
-                if not name_code.has_key(k): print k, ': Unavailable'
+            # Determine changes
+            all_langs = set(self.dictLang.keys() + name_code.keys())
+            for k in all_langs:
+                new = name_code.has_key(k)
+                old = self.dictLang.has_key(k)
+                if old and not new:
+                    changes.append('%s (%s): Removed' % (k, self.dictLang[k]))
+                if new and not old:
+                    changes.append('%s (%s): Added' % (k, name_code[k]))
+            # Repopulate dictLang with new data
             self.dictLang = name_code
         else:
-            print 'Unable to update_languages'
-        return False
+            return False
+        if echo:
+            return changes
+        else:
+            return True
 
     def pretty_print_languages(self, right_justify = True):
         '''
