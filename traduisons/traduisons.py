@@ -354,9 +354,7 @@ class translator:
                 })
                 url = 'http://mymemory.translated.net/api/get?%s' % \
                     (urldata,)
-                print url
                 response = self.urlread(url)
-                print response
                 result = json.loads(response)
                 if result['responseStatus'] != 200:
                     self._error = ('Unable to translate',
