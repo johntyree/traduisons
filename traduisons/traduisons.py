@@ -146,7 +146,7 @@ class translator:
         try:
             self.msg_LATEST
         except AttributeError:
-            url = 'http://traduisons.googlecode.com/svn/trunk/LATEST-IS'
+            url = 'https://raw.github.com/johntyree/traduisons/master/LATEST-IS'
             try:
                 ver = self.urlread(url)
             except IOError:
