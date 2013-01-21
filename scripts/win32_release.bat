@@ -1,4 +1,4 @@
-REM Copyright 2011 John E Tyree <johntyree@gmail.com>
+REM Copyright 2013 John E Tyree <johntyree@gmail.com>
 @echo off
 for /f "delims=" %%a in ('python setup.py --version') do @set VER=%%a
 python setup.py py2exe

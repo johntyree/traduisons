@@ -1,5 +1,5 @@
 ; traduisons_installer.nsi
-; Copyright 2011 John E Tyree <johntyree@gmail.com>
+; Copyright 2013 John E Tyree <johntyree@gmail.com>
 
 ;--------------------------------
 
