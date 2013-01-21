@@ -1,4 +1,6 @@
-![Traduisons Logo](/traduisons/data/traduison.png)
+Traduisons!
+===========
+![Traduisons Logo](https://traduisons.googlecode.com/files/traduisons.png)
 
 Traduisons! (French for "Let's Translate!") is a front-end for google
 translate, allowing translation of words and sentences without opening the
@@ -23,3 +25,11 @@ As of version 0.4.1, traduisons is distributed as a standard python package. To
 install it, unzip and run
 
     python setup.py install
+    
+Screenshots
+-----------
+![](http://traduisons.googlecode.com/files/screenshot-05-linux.png)
+![](http://traduisons.googlecode.com/files/screenshot-02-linux.png)
+![](http://traduisons.googlecode.com/files/screenshot-03-windows.png)
+![](http://traduisons.googlecode.com/files/screenshot-04-windows.png)
+![](http://traduisons.googlecode.com/files/screenshot-01-linux.png)
