@@ -22,12 +22,12 @@
     Traduisons!
     http://traduisons.googlecode.com
 
-    Python bindings to Bing!(tm) Translator API
+    Python bindings to online translation services.
 """
 
 import base64
 import htmlentitydefs
-# In python <= 2.5, standard 'json' is not included 
+# In python <= 2.5, standard 'json' is not included
 try:
     import json
 except(ImportError):
@@ -61,6 +61,8 @@ auto|en      Auto detect to English:
 es|          Change starting Language to Spanish:
 
 Please visit <http://code.google.com/p/traduisons/wiki> for help."""
+
+msg_USAGE = ''
 
 appPath = os.path.dirname(__file__)
 start_text = ""
@@ -118,10 +120,10 @@ class translator:
                 'Vietnamese': 'vi'
                }
 
-    class urlopener(urllib.URLopener):
+    class URLOpener(urllib.URLopener):
         def __init__(self, *args, **kwargs):
             urllib.URLopener.__init__(self)
-#             self.addheader('User-Agent', "Traduisons/%s" % (msg_VERSION,))
+            self.addheader('User_Agent', "Traduisons/%s" % (msg_VERSION,))
         def urlread(self, url):
             try:
                 txt = self.open(url).read().strip()
@@ -134,7 +136,10 @@ class translator:
         if not self.from_lang(from_lang): self.from_lang('auto')
         if not self.to_lang(to_lang): self.to_lang('en')
         self._text = start_text
-        self.urlread = self.urlopener().urlread
+        self.urlopener = self.URLOpener()
+        self.urlread = self.urlopener.urlread
+        self.ipaddr = self.urlread("http://icanhazip.com")
+        print self.ipaddr
 
     def is_latest(self):
         '''Phone home to check if we are up to date.'''
@@ -327,6 +332,7 @@ class translator:
         '''Return true if able to set self.result to translated text, else
         False.'''
         self.result = ''
+        translation = ''
         if self._text == '':
             return True
         try:
@@ -335,24 +341,30 @@ class translator:
                 from_lang_temp = self.detect_lang()
             else:
                 from_lang_temp = self._from_lang
-            urldata = urllib.urlencode({"version": "2.2",
-                                        "appid": "2789651A5EB17D14C382C2EE5B9410617C25260E",
-                                        "sources": "translation",
-                                        "translation.sourcelanguage": from_lang_temp,
-                                        "translation.targetlanguage": self._to_lang,
-                                        "query": self._text,
-                                       })
-            url = 'http://api.bing.net/json.aspx?%s' % \
-                (urldata,)
-            response = self.urlread(url)
-            result = json.loads(response)['SearchResponse']
-            if 'Errors' in result:
-                self._error = ('Unable to translate',
-                               Exception(result['SearchResponse']))
-                translation = ''
-                return False
-            translation = result['Translation']['Results'][0]['TranslatedTerm']
-            translation = self._unquotehtml(translation)
+            if from_lang_temp == self.to_lang():
+                translation = self._text
+                self._text = ''
+            else:
+                urldata = urllib.urlencode({
+                    "de": "johntyree+traduisons@gmail.com",
+                    "ip": self.ipaddr,
+                    "of": "json",
+                    "langpair": "{}|{}".format(from_lang_temp, self._to_lang),
+                    "q": self._text,
+                })
+                url = 'http://mymemory.translated.net/api/get?%s' % \
+                    (urldata,)
+                print url
+                response = self.urlread(url)
+                print response
+                result = json.loads(response)
+                if result['responseStatus'] != 200:
+                    self._error = ('Unable to translate',
+                                Exception(result['responseDetails']))
+                    translation = ''
+                    return False
+                translation = result['responseData']['translatedText']
+                translation = self._unquotehtml(translation)
         # If 'result' is empty (pretty generic error) handle exception.
         except TypeError, e:
             self._error = ('No translation available', e)
@@ -362,10 +374,7 @@ class translator:
             self._error = (e.reason, e)
             return False
         finally:
-            try:
-                self.result = translation
-            except NameError:
-                pass
+            self.result = translation
         return True
 
     def _unquotehtml(self, s):
@@ -400,7 +409,7 @@ def main():
             sys.exit()
 
     ## Start traduisons!
-    print "\nTraduisons! - %s\npowered by Bing!(tm) ..." % (msg_VERSION,)
+    print "\nTraduisons! - %s\npowered by Bing!(tm) and MyMemory.Translated.net ..." % (msg_VERSION,)
     t = translator()
     if not t.is_latest():
         print "Version %s now available! %s" % (t.msg_LATEST,
