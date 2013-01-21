@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # coding: utf8
 #
-# Copyright 2011 John E Tyree <johntyree@gmail.com>
+# Copyright 2013 John E Tyree <johntyree@gmail.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,12 +41,12 @@ import ast
 from codecs import BOM_UTF8
 from distutils import version
 
-msg_VERSION = version.StrictVersion('0.5.1')
+msg_VERSION = version.StrictVersion('0.6.0')
 msg_DOWNLOAD = 'http://code.google.com/p/traduisons/downloads/list'
 msg_LICENSE = """Traduisons! %s
 http://traduisons.googlecode.com
 
-Copyright (C) 201 John E Tyree <johntyree@gmail.com>
+Copyright (C) 2013 John E Tyree <johntyree@gmail.com>
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
