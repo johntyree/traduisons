@@ -52,7 +52,9 @@ Please visit <http://code.google.com/p/traduisons/wiki> for help."""
 start_text = ""
 from_lang = "auto"
 to_lang = "en"
-b64_images = { 'png': { 'google_logo': r'''
+b64_images = {
+'png': {
+    'google_logo': r'''
 iVBORw0KGgoAAAANSUhEUgAAADMAAAAPCAYAAABJGff8AAAABGdBTUEAAK/INwWK6QAAABl0RVh0
 U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAcVSURBVHja3FZrbFTHFT4z97W++/KatfHG
 NrFjMNjFLQ24iiVIFBzCD1SFqj/aRlCUCvjRKlVatUFJVJJGNKUtoRVqgZZWKWCVOEqKQxsaUoyp
@@ -87,7 +89,7 @@ T475EBgCfJevPCieoyCxIxP2vQIZx7MQ0FKv9/VdELRc/DlP5UZwuIqgYNHSjYmBtzvpoOqSXI9k
 9eWd833FnJ/82vPx4IV2APcDBZ+pXflkYUxhXK+BsxOb2L8eiFLrHyq3ZI1nacNBuaT+oNPBs7oZ
 fdFIDbeAhLOcUQZcrhwIGv3Mfnn4H1k+HMVwQTY1zdoelj6U/MA2ZmcBcVu0xOAazUiMqTN9Z3U1
 cRALMiBbuF9dXJjPm13z/4P9R4ABANu4bb16FOo4AAAAAElFTkSuQmCC''',
-                       'bing_logo':r'''
+    'bing_logo':r'''
 iVBORw0KGgoAAAANSUhEUgAAAC0AAAAUCAYAAAAZb7T/AAAABmJLR0QAAAAAAAD5Q7t/AAAACXBI
 WXMAAABIAAAASABGyWs+AAAACXZwQWcAAAAtAAAAFACATny0AAAEBUlEQVRIx+3WW4iVVRQH8N8+
 c85kOiil5KUwKi+J3SAiIcQaKyyxG1L5UBAFRWpQzohFJBLdHJXsAtEFiiALCvMlzXQmsYsUWWHq
@@ -109,8 +111,52 @@ H+Y5h1hAVCjknXnq8vT7akKAWVgg1/7MKuniUR03TThxckdDiIQKsXArrpNl7wneMLu5LEjzFgcS
 Jsql8kVul5sX/1LQEyadEQvkt+B0PCMahxWidowgTMUlWIy3obrH/8hq+meQ/yEj3xQ3YRJOR638
 ztiEt9CMDk2HZPnfka5i1kpK/cgO1IoGJNLtQtwnhoq6NuZe91+zPHH8Dm+QWR0lVuQ3AAAAJXRF
 WHRkYXRlOmNyZWF0ZQAyMDExLTExLTI1VDEyOjE2OjI0KzAxOjAwTqRycQAAACV0RVh0ZGF0ZTpt
-b2RpZnkAMjAxMS0xMS0yNVQxMjoxNjoyNCswMTowMD/5ys0AAAAASUVORK5CYII='''},
-               'ico': { 'traduisons_icon': r'''
+b2RpZnkAMjAxMS0xMS0yNVQxMjoxNjoyNCswMTowMD/5ys0AAAAASUVORK5CYII=''',
+    'mymemory_logo' : r'''
+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
+'''},
+'ico': {
+    'traduisons_icon': r'''
 AAABAAEAMDAAAAEAIACoJQAAFgAAACgAAAAwAAAAYAAAAAEAIAAAAAAAACQAABILAAASCwAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///8A////APv+/gn5
@@ -280,8 +326,9 @@ AAAAAAAABwAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAADgAAAAAAAAAOAAAAAAAAAA8AAAAAAAAAD8
 AAAAAAAAAP4AAAAAAAAA/wAAAAAAAAD/AAAAAAAAAP8AAAAAAAAA/wAAAAABAAD/gAAAAAEAAP+A
 AAAABwAA/8AAAAAPAAD/4AAAAD8AAP/+AAA//wAA//+AAD//AAD//8AAf/8AAP//4AD//wAA///4
-Af//AAD///wP//8AAP///////wAA////////AAA=''', },
-    }
+Af//AAD///wP//8AAP///////wAA////////AAA=''',
+    },
+}
 
 # decorator
 def echo(f):
@@ -380,7 +427,9 @@ class TranslateWindow(traduisons.translator):
     def __init__(self, from_lang = 'auto', to_lang = 'en'):
         self.pixbufs = {}
         for form, name in (('ico', 'traduisons_icon'),
-                           ('png', 'bing_logo')):
+                           ('png', 'bing_logo'),
+                           ('png', 'google_logo'),
+                           ('png', 'mymemory_logo')):
             loader = gtk.gdk.PixbufLoader(form)
             loader.write(base64.b64decode(b64_images[form][name]))
             loader.close()
@@ -475,12 +524,12 @@ class TranslateWindow(traduisons.translator):
         self.hbox3.pack_start(self.statusBar2, False)
         try:
             serviceLogo = gtk.Image()
-            serviceLogo.set_from_pixbuf(self.pixbufs['bing_logo'])
+            serviceLogo.set_from_pixbuf(self.pixbufs['mymemory_logo'])
             self.statusBar2.set_text("powered by ")
             self.hbox3.pack_start(serviceLogo, False)
         except Exception, e:
             print e
-            self.statusBar2.set_text("powered by Bing! ")
+            self.statusBar2.set_text("powered by MyMemory")
         self.statusBar2.set_alignment(1, 0.5)
 
 ##  ----^---- Lower Half of window ----^----
