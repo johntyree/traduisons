@@ -9,7 +9,7 @@ from distutils import core
 from traduisons import msg_VERSION
 from traduisons.gtkui import b64_images
 
-README = os.path.join(os.path.dirname(__file__), 'README')
+README = os.path.join(os.path.dirname(__file__), 'README.md')
 LICENSE = os.path.join(os.path.dirname(__file__), 'LICENSE')
 CHANGELOG = os.path.join(os.path.dirname(__file__), 'CHANGELOG')
 CHANGELOG_WIKI = os.path.join(os.path.dirname(__file__), os.pardir, 'wiki', 'ChangeLog.wiki')
@@ -49,7 +49,7 @@ if 'py2exe' in sys.argv:
 
 core.setup(
     name = "traduisons",
-    description = "A front-end to Google Translate",
+    description = "A front-end to online translation services.",
     long_description = open(README).read(),
     version = str(msg_VERSION),
     author = 'John Tyree',
@@ -66,7 +66,7 @@ core.setup(
                   ('share/applications',
                   ['data/share/applications/traduisons.desktop']),
                   ('doc/%s-%s' % ('traduisons', msg_VERSION),
-                   ['README', 'CHANGELOG', 'LICENSE',])
+                   [README, CHANGELOG, LICENSE,])
                   ],
     **py2exe_args
     )
