@@ -1,3 +1,5 @@
+![Traduisons Logo](/traduisons/data/traduison.png)
+
 Traduisons! (French for "Let's Translate!") is a front-end for google
 translate, allowing translation of words and sentences without opening the
 browser. It is written in python and optionally uses a gtk-based gui.
