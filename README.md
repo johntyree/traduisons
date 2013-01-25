@@ -24,8 +24,12 @@ INSTALLATION
 As of version 0.4.1, traduisons is distributed as a standard python package. To
 install it, unzip and run
 
-    python setup.py install
-    
+    python setup.py install [--user]
+
+or install directly from pypi
+
+    pip install [--user] traduisons
+
 Screenshots
 -----------
 ![](http://traduisons.googlecode.com/files/screenshot-05-linux.png)
