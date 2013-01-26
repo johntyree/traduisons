@@ -41,7 +41,7 @@ import ast
 from codecs import BOM_UTF8
 from distutils import version
 
-msg_VERSION = version.StrictVersion('0.6.0')
+msg_VERSION = version.StrictVersion('0.6.1')
 msg_DOWNLOAD = 'http://code.google.com/p/traduisons/downloads/list'
 msg_LICENSE = """Traduisons! %s
 http://traduisons.googlecode.com
