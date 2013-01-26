@@ -349,7 +349,7 @@ class translator:
                     "de": "johntyree+traduisons@gmail.com",
                     "ip": self.ipaddr,
                     "of": "json",
-                    "langpair": "{}|{}".format(from_lang_temp, self._to_lang),
+                    "langpair": "%s|%s" % (from_lang_temp, self._to_lang),
                     "q": self._text,
                 })
                 url = 'http://mymemory.translated.net/api/get?%s' % \
