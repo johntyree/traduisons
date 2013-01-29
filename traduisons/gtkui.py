@@ -680,7 +680,7 @@ def main():
         TranslateWindow()
         gtk.main()
     else:
-        print "\nTraduisons! - %s\npowered by Bing! ..." % (traduisons.msg_VERSION,)
+        print "\nTraduisons! - %s\npowered by Bing!(tm) and MyMemory.Translated.net ..." % (traduisons.msg_VERSION,)
         t = traduisons.translator()
         if not t.is_latest():
             print "Version %s now available! %s" % (t.msg_LATEST,
