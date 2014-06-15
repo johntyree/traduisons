@@ -4,7 +4,7 @@ import os
 import shutil
 import base64
 import tempfile
-from distutils import core
+from setuptools import setup
 
 from traduisons import msg_VERSION
 from traduisons.gtkui import b64_images
@@ -47,7 +47,7 @@ if 'py2exe' in sys.argv:
                    'options': {'py2exe': {'includes': ['gio']}},
         }
 
-core.setup(
+setup(
     name = "traduisons",
     description = "A front-end to online translation services.",
     long_description = open(README).read(),
