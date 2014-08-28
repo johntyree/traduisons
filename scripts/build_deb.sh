@@ -8,17 +8,15 @@ CWD=$(pwd)
 BUILD="$CWD/build/bdist.linux-x86_64/deb"
 TMPPKG="$BUILD/pkg"
 DIST="$CWD/dist"
-PKGNAM=$(setup.py --name)
-#ARCH=$(setup.py --platforms)
-ARCH=i386
-VERSION=$(setup.py --version)
+PYTHON=${PYTHON:-python2}
+PKGNAM=$($PYTHON setup.py --name)
+ARCH=$($PYTHON setup.py --platforms)
+VERSION=$($PYTHON setup.py --version)
 RELEASE=${RELEASE:-1}
-#DESC=$(setup.py --long-description)
-DESC="TODO"
-#DEPENDS=$(setup.py --requires | sed -e :a -e '$!N;s/\n/, /;ta')
-DEPENDS="python (>= 2.5)"
-CONTACT=$(setup.py --contact)
-CONTACT_EMAIL=$(setup.py --contact-email)
+DESC=$($PYTHON setup.py --long-description)
+DEPENDS=$($PYTHON setup.py --requires | sed -e :a -e '$!N;s/\n/, /;ta')
+CONTACT=$($PYTHON setup.py --contact)
+CONTACT_EMAIL=$($PYTHON setup.py --contact-email)
 
 for dir in "$BUILD" "$DIST"; do
     if [[ -d "$dir" ]]; then
@@ -28,7 +26,7 @@ for dir in "$BUILD" "$DIST"; do
 done
 
 rm -rf "$TMPPKG"
-setup.py install \
+$PYTHON setup.py install \
     --root "$TMPPKG" \
     --install-lib /usr/share/pyshared
 mv "$TMPPKG/usr/doc" "$TMPPKG/usr/share/doc"
