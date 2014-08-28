@@ -21,4 +21,3 @@
 
 
 from traduisons import *
-import gtkui
