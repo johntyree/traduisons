@@ -10,12 +10,12 @@ from traduisons import msg_VERSION
 
 README = os.path.join(os.path.dirname(__file__), 'README.md')
 LICENSE = os.path.join(os.path.dirname(__file__), 'LICENSE')
-CHANGELOG = os.path.join(os.path.dirname(__file__), 'CHANGELOG')
-CHANGELOG_WIKI = os.path.join(os.path.dirname(__file__), os.pardir,
-                              'wiki', 'ChangeLog.wiki')
+# CHANGELOG = os.path.join(os.path.dirname(__file__), 'CHANGELOG')
+# CHANGELOG_WIKI = os.path.join(os.path.dirname(__file__), os.pardir,
+                              # 'wiki', 'ChangeLog.wiki')
 
-if os.path.isfile(CHANGELOG_WIKI):
-    shutil.copy2(CHANGELOG_WIKI, CHANGELOG)
+# if os.path.isfile(CHANGELOG_WIKI):
+    # shutil.copy2(CHANGELOG_WIKI, CHANGELOG)
 
 Py2exeCommand = None
 py2exe_args = {}
@@ -69,7 +69,8 @@ setup(
                 ('share/applications',
                 ['data/share/applications/traduisons.desktop']),
                 ('doc/%s-%s' % ('traduisons', msg_VERSION),
-                 [README, CHANGELOG, LICENSE])
+                 # [README, CHANGELOG, LICENSE])
+                 [README, LICENSE])
                 ],
     **py2exe_args
 )
